@@ -103,11 +103,12 @@ const resetEnv = () => {
 
 // --- Scrolling ---
 
+const belowHeight = 1000;
 const getScrollLocation = (height) => {
   let seaHeight = parseInt(
     getComputedStyle(document.documentElement).getPropertyValue('--seaHeight')
   );
-  let scrollHeight = document.body.scrollHeight - 1000;
+  let scrollHeight = document.body.scrollHeight - belowHeight;
   let screenHeight = document.body.offsetHeight * 0.55;
   return scrollHeight - (height + seaHeight + screenHeight);
 };
@@ -136,7 +137,7 @@ const scrollToGround = () => {
 
 const scrollToSea = () => {
   window.scrollTo({
-    top: document.body.scrollHeight - document.body.offsetHeight - 1000,
+    top: document.body.scrollHeight - document.body.offsetHeight - belowHeight,
     behavior: 'smooth',
   });
 };
@@ -207,7 +208,7 @@ const setFields = (fields) => {
   }
 };
 
-const setReductionFactor = (factor) => {
+const setReductionFactor = (factor = 10) => {
   reductionFactor = factor;
   updateEnv();
   updateRulerScale();
@@ -217,7 +218,7 @@ const setReductionFactor = (factor) => {
 
 window.addEventListener('DOMContentLoaded', () => {
   window.scrollTo({
-    top: document.body.scrollHeight - document.body.offsetHeight - 1000,
+    top: document.body.scrollHeight - document.body.offsetHeight - belowHeight,
   });
 
   createRuler();
