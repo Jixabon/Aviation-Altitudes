@@ -330,10 +330,11 @@
     </style>
     <script>
         let reductionFactor = 10;
+        let debug = false;
 
         const ISA = (alt) => ((alt / 1000) * -2) + 15;
-        const pressureAlt = (altSet, fieldElv) => ((29.92 -  altSet) * 1000) + fieldElv;
-        const densityAlt = (presAlt, fieldElev, oat,) => presAlt + 120 * (oat - 15);
+        const pressureAlt = (baro, fieldElv) => (29.92 -  baro) * 1000 + fieldElv;
+        const densityAlt = (presAlt, fieldElev, oat) => presAlt + 120 * (oat - 15);
 
         let defaults = {
             'fieldElev': 790,
@@ -358,6 +359,10 @@
                 'kollsman': parseFloat(document.getElementById('kollsman').value),
                 'oat': parseFloat(document.getElementById('oat').value)
             };
+
+            if (debug) {
+                console.log('fields', fields);
+            }
 
             let params = new URLSearchParams(location.search);
             for (const [id, value] of Object.entries(fields)) {
@@ -387,6 +392,10 @@
             calcs.isaDiff = fields.oat - calcs.isa;
             calcs.trueAlt = (4 * (fields.indicated / 1000) * calcs.isaDiff) + fields.indicated;
 
+            if (debug) {
+                console.log('calcs', calcs);
+            }
+
             const info = {
                 'infoFieldISA': calcs.fieldIsa,
                 'infoFieldISADiff': calcs.fieldIsaDiff >= 0 ? "+" + calcs.fieldIsaDiff : calcs.fieldIsaDiff,
@@ -400,6 +409,10 @@
 
             for (const [id, value] of Object.entries(info)) {
                 document.getElementById(id).innerText = value;
+            }
+
+            if (debug) {
+                console.log('info', info);
             }
 
             const properties = {
@@ -416,12 +429,9 @@
                 root.style.setProperty(property, value);
             }
 
-            console.log({
-                'fields': fields,
-                'calcs': calcs,
-                'info': info,
-                'properties': properties,
-            });
+            if (debug) {
+                console.log('properties', properties);
+            }
         }
 
         const reset = () => {
@@ -576,6 +586,7 @@
                 <button onClick="scrollToSea();">Go to Sea</button>
             </div>
             <p>
+                <a href="https://github.com/Jixabon/Aviation-Altitudes">GitHub</a><br/>
                 This tool is for learning purposes only and should not be use in flight planning.
             </p>
         </div>
