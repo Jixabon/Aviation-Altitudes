@@ -210,7 +210,7 @@ indicated > span {
 }
 
 aircraft {
-    background-image: url('/cirrus.png');
+    background-image: url('cirrus.png');
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
