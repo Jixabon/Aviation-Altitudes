@@ -216,7 +216,10 @@ const setReductionFactor = (factor) => {
 // --- Listeners ---
 
 window.addEventListener('DOMContentLoaded', () => {
-  scrollToSea();
+  window.scrollTo({
+    top: document.body.scrollHeight - document.body.offsetHeight - 1000,
+  });
+
   createRuler();
   loadParams();
   updateEnv();
