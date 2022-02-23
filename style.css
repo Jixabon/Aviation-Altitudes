@@ -1,0 +1,317 @@
+:root {
+    --seaHeight: 120px;
+    --transition-time: 1.2s;
+    --ui-radius: 18px;
+    --label-radius: 12px;
+    --label-offset: 45px;
+    --label-width: 74px;
+    --label-gap: 25px;
+
+    --ground: 0px;
+    --indicated: 0px;
+    --pressure: 0px;
+    --density: 0px;
+    --true: 0px;
+    --absolute: 0px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#ui {
+    width: 100%;
+    position: fixed;
+    z-index: 100;
+}
+
+#toggle {
+    background-color: rgba(255,255,255,0.7);
+    border-bottom: black 2px solid;
+    border-left: black 2px solid;
+    padding: 15px 10px;
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 110;
+    border-bottom-left-radius: var(--ui-radius);
+}
+
+#inputs {
+    display: none;
+    background-color: rgba(255,255,255,0.89);
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 15px 30px;
+    padding-top: 50px;
+}
+#inputs.out {
+    display: flex !important;
+}
+
+#inputs > div {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+#inputs input {
+    width: 100%;
+}
+input, button {
+    font-size: 16px;
+}
+
+#info {
+    display: block;
+    background-color: rgba(255,255,255,0.89);
+    flex-direction: column;
+    gap: 5px;
+    border-bottom-right-radius: var(--ui-radius);
+    border-bottom-left-radius: var(--ui-radius);
+    padding: 0 30px 15px 30px;
+}
+#inputs:not(.out) ~ #info {
+    padding-top: 15px;
+}
+
+#views {
+    background-color: rgba(255,255,255,0.89);
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    padding: 15px 0;
+    border-top-right-radius: var(--ui-radius);
+    border-top-left-radius: var(--ui-radius);
+    text-align: center;
+}
+#views > div {
+    display: flex;
+    justify-content: space-around;
+}
+#views > p {
+    font-size: 10px;
+    margin-bottom: 0;
+}
+
+environment {
+    display: block;
+    width: 100%;
+    height: 7000px;
+    position: relative;
+    background: rgb(0, 190, 228);
+    background: linear-gradient(180deg, rgba(9,9,121,1) 0%, rgba(4,125,197,1) 36%, rgba(0,212,255,1) 100%);
+}
+
+sea {
+    background-color: rgb(0, 0, 150);
+    height: var(--seaHeight);
+    width: 100%;
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+ground {
+    background-color: green;
+    height: calc(var(--seaHeight) + var(--ground));
+    width: 70%;
+    display: block;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    border-top-left-radius: 25px;
+    transition: height var(--transition-time) ease-in-out;
+}
+
+below {
+    background-color: rgb(114, 36, 0);
+    width: 100%;
+    height: 1000px;
+    position: absolute;
+    bottom: -1000px;
+}
+
+ruler {
+    position: relative;
+    bottom: 0;
+}
+tick {
+    display: block;
+    border-bottom: black 2px solid;
+    width: 10px;
+    position: relative;
+}
+tick > span {
+    position: absolute;
+    bottom: 0;
+}
+ruler tick:nth-child(odd) {
+    width: 20px;
+}
+
+ruler.right tick {
+    margin-left: auto;
+}
+ruler.right tick span {
+    right: 0;
+}
+
+altitudes > * {
+    width: 100%;
+    display: block;
+    position: absolute;
+    bottom: 0px;
+    transition: bottom var(--transition-time) ease-in-out;
+}
+
+altitudes > * > span {
+    display: inline;
+    width: var(--label-width);
+    text-align: center;
+    font-size: 12px;
+    padding: 3px 4px;
+    background-color: white;
+    border-top: black 2px solid;
+    border-right: black 2px solid;
+    border-left: black 2px solid;
+    border-top-right-radius: var(--label-radius);
+    border-top-left-radius: var(--label-radius);
+    position: absolute;
+    z-index: 20;
+    bottom: 0;
+}
+
+indicated {
+    border-bottom: black 2px solid;
+    bottom: calc((var(--seaHeight) - 1px) + var(--indicated));
+}
+indicated > span {
+    display: none;
+    left: calc(var(--label-offset) + var(--label-gap) + var(--label-width));
+}
+
+aircraft {
+    background-image: url('/cirrus.png');
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: absolute;
+    display: inline;
+    height: 100px;
+
+    width: 116px;
+    bottom: -54px;
+    left: calc(50% - 58px);
+}
+
+pressure {
+    border-bottom: black 2px solid;
+    bottom: calc((var(--seaHeight) - 1px) + var(--pressure));
+}
+pressure > span {
+    left: calc(50% - var(--label-width) - (var(--label-gap) / 2));
+}
+
+density {
+    border-bottom: black 2px solid;
+    bottom: calc((var(--seaHeight) - 1px) + var(--density));
+}
+density > span {
+    left: calc(50% + (var(--label-gap) / 2));
+}
+
+true {
+    border-bottom: black 2px solid;
+    bottom: calc((var(--seaHeight) - 1px) + var(--true));
+}
+true > span {
+    left: var(--label-offset);
+}
+
+absolute {
+    border-bottom: black 2px solid;
+    bottom: calc((var(--seaHeight) - 1px) + var(--absolute));
+}
+absolute > span {
+    right: var(--label-offset);
+}
+
+seaLevel {
+    bottom: calc(var(--seaHeight) - 1px);
+}
+seaLevel > span {
+    display: none;
+}
+
+@media screen and (min-width: 600px) {
+    #toggle {
+        display: none;
+    }
+
+    #inputs {
+        display: flex !important;
+        border-bottom-right-radius: var(--ui-radius);
+        padding-top: 15px;
+    }
+
+    #inputs > div {
+        width: unset;
+    }
+
+    #inputs input {
+        width: 140px;
+    }
+
+    #info {
+        display: inline-block;
+        padding: 0 30px 15px 30px;
+        border-bottom-left-radius: unset;
+        padding-top: 0px !important;
+    }
+
+    #views {
+        --views-width: 600px;
+        width: var(--views-width);
+        left: calc(50% - (var(--views-width) / 2));
+    }
+
+    altitudes > * > span {
+        --label-offset: 60px;
+        --label-width: 90px;
+        font-size: 16px;
+    }
+
+    aircraft {
+        width: 150px;
+        bottom: -55px;
+        left: calc(50% - 75px);
+    }
+
+    pressure > span {
+        left: 24%;
+    }
+
+    density > span {
+        right: 25%;
+        left: unset;
+    }
+}
