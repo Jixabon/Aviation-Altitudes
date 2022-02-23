@@ -4,11 +4,23 @@ A quick tool to visualize the different altidudes in aviation and to see how pre
 
 ## Formulas used
 
-From what I could find these are the commonly used formulas, although my numbers aren't matching the results of apps like Foreflight and the Sportys E6B. So I'm not sure what formulas they use.
+From what I could find these are the commonly used formulas, although my numbers aren't matching the results of apps like Foreflight and the Sportys E6B. So I'm not sure what formulas they use. If you have any suggestions for more accurate formulas, please send them my way.
 
 - ISA = (Altitude / 1000) \* -2 + 15
 - Pressure Altitude = (29.92 - Baro) \* 1000 + FieldElev
 - Density Altitude = PressureAlt + 120 \* (OAT - 15)
+
+## Potential Features
+
+### Airport Lookup
+
+Given an airport ICAO identifier, fetch latest METAR and fill in relevant data.
+
+The Aviation Weather Center has a free API, however, is not available to ajax requests. Will look into this feature if demand is high.
+
+### Clouds
+
+Illustrate where clouds would form (or are if Airport lookup is implemented) based on temperatures and lapse rates.
 
 ## Options
 
@@ -22,18 +34,24 @@ Run the following in the browser console and all actions after will output debug
 debug = true;
 ```
 
-To disable:
+and to disable debugging
 
 ```
 debug = false;
 ```
 
-### Scale
+### Reduction Factor
 
 To use a 1:1 pixel to foot ratio would be unruly so there is a reduction factor implemented. The default is 10:1. To change the reduction factor run the command a pass an integer of your choosing.
 
 ```
 setReductionFactor(10);
+```
+
+or no parameter to go back to default
+
+```
+setReductionFactor();
 ```
 
 ### Field Defaults
