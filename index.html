@@ -13,6 +13,11 @@
         :root {
             --seaHeight: 120px;
             --transition-time: 1.2s;
+            --ui-radius: 18px;
+            --label-radius: 12px;
+            --label-offset: 45px;
+            --label-width: 74px;
+            --label-gap: 25px;
 
             --ground: 0px;
             --indicated: 0px;
@@ -41,27 +46,27 @@
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        #toggle {
-            background-color: rgba(255,255,255,0.7);
-            border-bottom: black 1px solid;
-            border-left: black 1px solid;
-            padding: 15px 10px;
-            position: fixed;
-            top: 0;
-            right: 0;
-            z-index: 110;
-            border-bottom-left-radius: 25px;
-        }
-
         #ui {
             width: 100%;
             position: fixed;
             z-index: 100;
         }
 
+        #toggle {
+            background-color: rgba(255,255,255,0.7);
+            border-bottom: black 2px solid;
+            border-left: black 2px solid;
+            padding: 15px 10px;
+            position: fixed;
+            top: 0;
+            right: 0;
+            z-index: 110;
+            border-bottom-left-radius: var(--ui-radius);
+        }
+
         #inputs {
             display: none;
-            background-color: rgba(255,255,255,0.7);
+            background-color: rgba(255,255,255,0.89);
             flex-wrap: wrap;
             gap: 10px;
             padding: 15px 30px;
@@ -88,9 +93,11 @@
 
         #info {
             display: block;
-            background-color: rgba(255,255,255,0.7);
+            background-color: rgba(255,255,255,0.89);
             flex-direction: column;
             gap: 5px;
+            border-bottom-right-radius: var(--ui-radius);
+            border-bottom-left-radius: var(--ui-radius);
             padding: 0 30px 15px 30px;
         }
         #inputs:not(.out) ~ #info {
@@ -98,13 +105,13 @@
         }
 
         #views {
-            background-color: rgba(255,255,255,0.7);
+            background-color: rgba(255,255,255,0.89);
             width: 100%;
             position: fixed;
             bottom: 0;
             padding: 15px 0;
-            border-top-right-radius: 25px;
-            border-top-left-radius: 25px;
+            border-top-right-radius: var(--ui-radius);
+            border-top-left-radius: var(--ui-radius);
             text-align: center;
         }
         #views > div {
@@ -163,7 +170,6 @@
             display: block;
             border-bottom: black 2px solid;
             width: 10px;
-            /*margin-bottom: 48px;*/
             position: relative;
         }
         tick > span {
@@ -190,9 +196,6 @@
         }
 
         altitudes > * > span {
-            --offset: 45px;
-            --label-width: 74px;
-            --gap: 25px;
             display: inline;
             width: var(--label-width);
             text-align: center;
@@ -202,8 +205,8 @@
             border-top: black 2px solid;
             border-right: black 2px solid;
             border-left: black 2px solid;
-            border-top-right-radius: 12px;
-            border-top-left-radius: 12px;
+            border-top-right-radius: var(--label-radius);
+            border-top-left-radius: var(--label-radius);
             position: absolute;
             z-index: 20;
             bottom: 0;
@@ -215,7 +218,7 @@
         }
         indicated > span {
             display: none;
-            left: calc(var(--offset) + var(--gap) + var(--label-width));
+            left: calc(var(--label-offset) + var(--label-gap) + var(--label-width));
         }
 
         aircraft {
@@ -237,10 +240,7 @@
             bottom: calc((var(--seaHeight) - 1px) + var(--pressure));
         }
         pressure > span {
-            left: calc(50% - var(--label-width) - (var(--gap) / 2));
-        }
-        pressure tick {
-            right: 0px;
+            left: calc(50% - var(--label-width) - (var(--label-gap) / 2));
         }
 
         density {
@@ -248,7 +248,7 @@
             bottom: calc((var(--seaHeight) - 1px) + var(--density));
         }
         density > span {
-            left: calc(50% + (var(--gap) / 2));
+            left: calc(50% + (var(--label-gap) / 2));
         }
 
         true {
@@ -256,7 +256,7 @@
             bottom: calc((var(--seaHeight) - 1px) + var(--true));
         }
         true > span {
-            left: var(--offset);
+            left: var(--label-offset);
         }
 
         absolute {
@@ -264,7 +264,7 @@
             bottom: calc((var(--seaHeight) - 1px) + var(--absolute));
         }
         absolute > span {
-            right: var(--offset);
+            right: var(--label-offset);
         }
 
         seaLevel {
@@ -281,7 +281,7 @@
 
             #inputs {
                 display: flex !important;
-                border-bottom-right-radius: 25px;
+                border-bottom-right-radius: var(--ui-radius);
                 padding-top: 15px;
             }
 
@@ -296,12 +296,18 @@
             #info {
                 display: inline-block;
                 padding: 0 30px 15px 30px;
-                border-bottom-right-radius: 25px;
+                border-bottom-left-radius: unset;
                 padding-top: 0px !important;
             }
 
+            #views {
+                --views-width: 600px;
+                width: var(--views-width);
+                left: calc(50% - (var(--views-width) / 2));
+            }
+
             altitudes > * > span {
-                --offset: 60px;
+                --label-offset: 60px;
                 --label-width: 90px;
                 font-size: 16px;
             }
@@ -317,7 +323,8 @@
             }
 
             density > span {
-                left: 64%;
+                right: 25%;
+                left: unset;
             }
         }
     </style>
@@ -360,7 +367,13 @@
                     params.delete(id);
                 }
             }
-            let newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?' + params.toString();
+            let {protocol, host, pathname} = window.location;
+            let newurl = '';
+            if (params.toString() != "") {
+                newurl = `${protocol}//${host}${pathname}?${params.toString()}`;
+            } else {
+                newurl = `${protocol}//${host}${pathname}`;
+            }
             window.history.pushState({ path: newurl }, '', newurl);
 
             let calcs = {
@@ -391,9 +404,7 @@
 
             const properties = {
                 '--ground': fields.fieldElev / reductionFactor + "px",
-                '--groundRaw': fields.fieldElev / reductionFactor,
                 '--indicated': fields.indicated / reductionFactor + "px",
-                '--indicatedRaw': fields.indicated / reductionFactor,
                 '--pressure': calcs.presAlt / reductionFactor + "px",
                 '--density': calcs.densAlt / reductionFactor + "px",
                 '--true': calcs.trueAlt / reductionFactor + "px",
@@ -413,22 +424,35 @@
             });
         }
 
-        const scrollToPlane = () => {
+        const reset = () => {
+            for (const [id, value] of Object.entries(defaults)) {
+                document.getElementById(id).value = value;
+            }
+            update();
+            scrollToSea();
+        }
+
+        const getScrollLocation = (height) => {
+            let seaHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--seaHeight'));
             let scrollHeight = document.body.scrollHeight - 1000;
-            let indicated = parseInt(document.documentElement.style.getPropertyValue('--indicatedRaw'));
-            let scrollTo = scrollHeight - (indicated + 39) - (document.body.offsetHeight / 2);
+            let screenHeight = document.body.offsetHeight * 0.55;
+            return scrollHeight - (height + seaHeight + screenHeight);
+        }
+
+        const scrollToPlane = () => {
+            let indicated = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--indicated'));
+
             window.scrollTo({
-                top: scrollTo,
+                top: getScrollLocation(indicated),
                 behavior: 'smooth'
             });
         }
 
         const scrollToGround = () => {
-            let scrollHeight = document.body.scrollHeight - 1000;
-            let ground= parseInt(document.documentElement.style.getPropertyValue('--groundRaw'));
-            let scrollTo = scrollHeight - (ground+ 39) - (document.body.offsetHeight / 2);
+            let ground = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--ground'));
+
             window.scrollTo({
-                top: scrollTo,
+                top: getScrollLocation(ground),
                 behavior: 'smooth'
             });
         }
@@ -447,14 +471,6 @@
             } else {
                 inputs.classList.add('out');
             }
-        }
-
-        const reset = () => {
-            for (const [id, value] of Object.entries(defaults)) {
-                document.getElementById(id).value = value;
-            }
-            update();
-            scrollToGround();
         }
 
         const loadFields = () => {
@@ -560,7 +576,7 @@
                 <button onClick="scrollToSea();">Go to Sea</button>
             </div>
             <p>
-                This tool is for learning purposes only and cannot be use in flight planning.
+                This tool is for learning purposes only and should not be use in flight planning.
             </p>
         </div>
     </div>
@@ -575,10 +591,10 @@
             </indicated>
             <pressure id="pressure">
                 <span>Pressure</span>
-                <ruler class="right" ticks="140"></ruler>
             </pressure>
             <density id="density">
                 <span>Density</span>
+                <ruler class="right" ticks="140"></ruler>
             </density>
             <true id="true">
                 <span>True</span>
