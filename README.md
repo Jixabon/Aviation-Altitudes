@@ -6,9 +6,31 @@ A quick tool to visualize the different altidudes in aviation and to see how pre
 
 From what I could find these are the commonly used formulas, although my numbers aren't matching the results of apps like Foreflight and the Sportys E6B. So I'm not sure what formulas they use. If you have any suggestions for more accurate formulas, please send them my way.
 
-- ISA = (Altitude / 1000) \* -2 + 15
-- Pressure Altitude = (29.92 - Baro) \* 1000 + FieldElev
-- Density Altitude = PressureAlt + 120 \* (OAT - 15)
+- ISA = (Altitude / 1000) &times; -2 + 15
+- Pressure Altitude = (29.92 - Baro) &times; 1000 + FieldElev
+- Density Altitude = PressureAlt + 120 &times; (OAT - 15)
+
+## Interface
+
+### Fields
+
+- Field Elevation `#fieldElev`
+- Field Pressure `#fieldPres`
+- Field Temperature `#fieldTemp`
+- Indicated Altitude `#indicated`
+  - Theoretical altitude that the plane will fly
+- Kollsman Setting `#kollsman`
+  - Currently not implemented and disabled
+- Outside Air Temperature `#oat`
+  - Temperature observed by the plane's instruments
+
+### Altitude Rulers
+
+There are two rulers on the interface on the left and right edges. The ruler on the left starts from sea level, while the ruler on the right starts from where ever Density Altitude is calculated to be.
+
+### "Go To" Buttons
+
+At the bottom of the screen are the Go To buttons to quickly bring into view either the Plane, Ground or Sea.
 
 ## Potential Features
 
