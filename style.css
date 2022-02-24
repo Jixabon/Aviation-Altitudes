@@ -1,5 +1,5 @@
 :root {
-    --seaHeight: 120px;
+    --seaHeight: 130px;
     --transition-time: 1.2s;
     --ui-radius: 18px;
     --label-radius: 12px;
@@ -95,6 +95,9 @@ input, button {
 #views {
     background-color: rgba(255,255,255,0.89);
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
     position: fixed;
     bottom: 0;
     padding: 15px 0;
@@ -107,8 +110,11 @@ input, button {
     justify-content: space-around;
 }
 #views > p {
+    font-size: 14px;
+    margin: 0;
+}
+#views > p.smallprint {
     font-size: 10px;
-    margin-bottom: 0;
 }
 
 environment {

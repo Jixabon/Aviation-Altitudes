@@ -77,3 +77,5 @@ fieldDefaults = {
 ```
 
 Be sure to press the reset button afterwards.
+
+Do you like the project or has hit helped you study and understand the topics around altitudes? [Buy me a coffee!](https://paypal.me/sherlock656)
