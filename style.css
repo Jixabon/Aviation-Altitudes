@@ -274,7 +274,7 @@ seaLevel > span {
     }
 
     #inputs {
-        display: flex !important;
+        display: inline-flex !important;
         border-bottom-right-radius: var(--ui-radius);
         padding-top: 15px;
     }
