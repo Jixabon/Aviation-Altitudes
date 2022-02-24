@@ -7,10 +7,9 @@ const densityAlt = (presAlt, oat) => presAlt + 120 * (oat - 15);
 
 let fieldDefaults = {
   fieldElev: 790,
-  fieldPres: 29.92,
+  altimeter: 29.92,
   fieldTemp: 15,
   indicated: 3500,
-  kollsman: 29.92,
   oat: 8,
 };
 
@@ -28,10 +27,9 @@ const toggleMenu = (id) => {
 const updateEnv = () => {
   let fields = {
     fieldElev: parseInt(document.getElementById('fieldElev').value),
-    fieldPres: parseFloat(document.getElementById('fieldPres').value),
+    altimeter: parseFloat(document.getElementById('altimeter').value),
     fieldTemp: parseFloat(document.getElementById('fieldTemp').value),
     indicated: parseInt(document.getElementById('indicated').value),
-    kollsman: parseFloat(document.getElementById('kollsman').value),
     oat: parseFloat(document.getElementById('oat').value),
   };
   if (debug) {
@@ -41,7 +39,7 @@ const updateEnv = () => {
   updateParams(fields);
 
   let calcs = {
-    presAlt: Math.round(pressureAlt(fields.fieldPres, fields.fieldElev)),
+    presAlt: Math.round(pressureAlt(fields.altimeter, fields.fieldElev)),
     isa: ISA(fields.indicated),
     fieldIsa: ISA(fields.fieldElev),
     absoAlt: fields.indicated - fields.fieldElev,

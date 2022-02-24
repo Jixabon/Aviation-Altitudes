@@ -15,12 +15,10 @@ From what I could find these are the commonly used formulas, although my numbers
 ### Fields
 
 - Field Elevation `#fieldElev`
-- Field Pressure `#fieldPres`
+- Altimeter `#altimeter`
 - Field Temperature `#fieldTemp`
 - Indicated Altitude `#indicated`
   - Theoretical altitude that the plane will fly
-- Kollsman Setting `#kollsman`
-  - Currently not implemented and disabled
 - Outside Air Temperature `#oat`
   - Temperature observed by the plane's instruments
 
@@ -43,6 +41,10 @@ The Aviation Weather Center has a free API, however, is not available to ajax re
 ### Clouds
 
 Illustrate where clouds would form (or are if Airport lookup is implemented) based on temperatures and lapse rates.
+
+### Kollsman Window
+
+I'm not sure how this one would be implemented but the idea is to illustrate what happens when you set the kollsman window to something other than local pressure or standard pressure aka set incorrectly.
 
 ## Options
 
