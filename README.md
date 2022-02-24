@@ -2,13 +2,27 @@
 
 A quick tool to visualize the different altidudes in aviation and to see how pressure and temperature change them.
 
+Do you like the project or has hit helped you study and understand the topics around altitudes? Feel free to [Buy me a coffee!](https://ko-fi.com/jixabon)
+
 ## Formulas used
 
 From what I could find these are the commonly used formulas, although my numbers aren't matching the results of apps like Foreflight and the Sportys E6B. So I'm not sure what formulas they use. If you have any suggestions for more accurate formulas, please send them my way.
 
-- ISA = (Altitude / 1000) &times; -2 + 15
-- Pressure Altitude = (29.92 - Baro) &times; 1000 + FieldElev
+- ISA = (Alt / 1000) &times; -2 + 15
+- ISA Deviation = OAT - ISA
+- Temperature Error Correction (TEC) = 4 &times; (Alt / 1000) &times; ISADev
+- Pressure Correction (PresCorr)
+  - inHg: (29.92 - Baro) &times; 1000
+  - hPa: (1013 - Baro) &times; 30
+- Pressure Altitude = PresCorr + FieldElev
 - Density Altitude = PressureAlt + 120 &times; (OAT - 15)
+- Absolute Altitude = TrueAlt - FieldAlt
+- True Altitude = IndicatedAlt + TEC
+- Indicated Altitude
+  - inHg: (Kollsman - Baro) &times; 1000 + Alt
+  - hPa: (Kollsman - Baro) &times; 30 + alt
+
+For the sake of this project True Altitude is calculated off of Planned Altitude to allow the "altitude indicator" to be experimented with.
 
 ## Interface
 
@@ -18,8 +32,8 @@ Located at the very top of the screen or opened by the menu button.
 
 - Field Elevation `#fieldElev`
   - The elevation of the airport
-- Altimeter `#altimeter`
-  - The pressure at surface level of the airport (Also what should be set in the kollsman window or as your altimeter setting)
+- Pressure `#pressure`
+  - The pressure at the surface level/airport (Also what should be set in the kollsman window/altimeter setting)
 - Surface Temperature `#surfaceTemp`
   - The temperature observed at the surface or airport
 - Planned Altitude `#plannedAlt`
@@ -29,11 +43,19 @@ Located at the very top of the screen or opened by the menu button.
 - Outside Air Temperature `#oat`
   - Temperature observed in the air by the plane's instruments
 
+### Pressure Unit Button
+
+Use to switch the unit that pressure is in. Current supported units are `inHg` and `hPa`.
+
+### Reset Button
+
+Resets all fields to their "default" values.
+
 ### Altitude Info
 
 Found at the top of the screen under the fields. Most in the list are self explanatory but some are a little odd.
 
-- Indicated Altitude: For the sake of this tool this is the theoretical reading on the planes altimeter
+- Indicated Altitude: For the sake of this tool, this is the theoretical reading on the planes altimeter
 
 ### Altitude Rulers
 
@@ -57,26 +79,12 @@ Illustrate where clouds would form (or are if Airport lookup is implemented) bas
 
 ## Options
 
-Currently refreshing the page will reset these options.
-
 ### Debug
-
-#### GET parameter method
-
-Just add `?&debug=true` to the url to enable debugging.
-
-#### Browser console method
 
 Run the following in the browser console and all actions after will output debug information.
 
 ```
-debug = true;
-```
-
-and to disable debugging run
-
-```
-debug = false;
+toggleDebug();
 ```
 
 ### Reduction Factor
@@ -95,26 +103,37 @@ setReductionFactor();
 
 ### Field Defaults
 
-You can see the default values used when the reset button is pressed by peeping the `fieldDefaults` variable.
-To change these values simply set them like below:
+You can see the default values used when the reset button is pressed by peeping the `fieldDefaults` variable. These are not saved and will be cleared on page refresh. To change these values simply set them like below:
 
 ```
-fieldDefaults.fieldTemp = 21;
+fieldDefaults.surfaceTemp.C = 21;
 ```
 
-or
+current available values are
 
 ```
 fieldDefaults = {
-  fieldElev: 790,
-  fieldPres: 29.92,
-  fieldTemp: 21,
-  indicated: 3500,
-  kollsman: 29.92,
-  oat: 8,
+  fieldElev: {
+    ft: 790,
+  },
+  pressure: {
+    inHg: 29.92,
+    hPa: 1013,
+  },
+  surfaceTemp: {
+    C: 15,
+  },
+  plannedAlt: {
+    ft: 3500,
+  },
+  kollsman: {
+    inHg: 29.92,
+    hPa: 1013,
+  },
+  oat: {
+    C: 8,
+  },
 };
 ```
 
 Be sure to press the reset button afterwards.
-
-Do you like the project or has hit helped you study and understand the topics around altitudes? [Buy me a coffee!](https://paypal.me/sherlock656)

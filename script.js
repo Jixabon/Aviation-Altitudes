@@ -1,24 +1,84 @@
+const fieldTypes = {
+  altitude: 'altitude',
+  pressure: 'pressure',
+  temp: 'temp',
+};
+
+const altitudeFields = ['fieldElev', 'plannedAlt'];
+const altitudeUnits = { Feet: 'ft', Meters: 'm' };
+
+const pressureFields = ['pressure', 'kollsman'];
+const pressureUnits = { inHg: 'inHg', hPa: 'hPa' };
+
+const tempFields = ['surfaceTemp', 'oat'];
+const tempUnits = { C: 'C', F: 'F' };
+
+let params = new URLSearchParams(location.search);
+
 let reductionFactor = 10;
-let debug = false;
+let debug = params.has('debug') ? params.get('debug') : false;
+
+let altitudeUnit = altitudeUnits.Feet;
+let pressureUnit = params.has('pressureUnit')
+  ? params.get('pressureUnit')
+  : pressureUnits.inHg;
+let tempUnit = tempUnits.C;
+
+let fieldDefaults = {
+  fieldElev: {
+    type: fieldTypes.altitude,
+    ft: 790,
+  },
+  pressure: {
+    type: fieldTypes.pressure,
+    inHg: 29.92,
+    hPa: 1013,
+  },
+  surfaceTemp: {
+    type: fieldTypes.temp,
+    C: 15,
+  },
+  plannedAlt: {
+    type: fieldTypes.altitude,
+    ft: 3500,
+  },
+  kollsman: {
+    type: fieldTypes.pressure,
+    inHg: 29.92,
+    hPa: 1013,
+  },
+  oat: {
+    type: fieldTypes.temp,
+    C: 8,
+  },
+};
 
 const ISA = (alt) => (alt / 1000) * -2 + 15;
 const ISADeviation = (alt, oat) => oat - ISA(alt);
 const TEC = (absoluteAlt, oat) =>
   4 * (absoluteAlt / 1000) * ISADeviation(absoluteAlt, oat);
-const pressureCorrection = (baro) => (29.92 - baro) * 1000;
-const pressureAlt = (baro, fieldElv) => pressureCorrection(baro) + fieldElv;
+const pressureCorrection = (baro, unit) => {
+  switch (unit) {
+    case pressureUnits.hPa:
+      return (1013 - baro) * 30;
+
+    default:
+      return (29.92 - baro) * 1000; // inHg
+  }
+};
+const pressureAlt = (presCorr, fieldElv) => presCorr + fieldElv;
 const densityAlt = (presAlt, oat) => presAlt + 120 * (oat - 15);
 const absoluteAlt = (trueAlt, fieldElev) => trueAlt - fieldElev;
 const trueAlt = (indicatedAlt, absoluteAlt, oat) =>
   indicatedAlt + TEC(absoluteAlt, oat);
+const indicatedAlt = (kollsman, baro, alt, unit) => {
+  switch (unit) {
+    case pressureUnits.hPa:
+      return (kollsman - baro) * 30 + alt;
 
-let fieldDefaults = {
-  fieldElev: 790,
-  altimeter: 29.92,
-  surfaceTemp: 15,
-  plannedAlt: 3500,
-  kollsman: 29.92,
-  oat: 8,
+    default:
+      return (kollsman - baro) * 1000 + alt; // inHg
+  }
 };
 
 const toggleMenu = (id) => {
@@ -30,64 +90,95 @@ const toggleMenu = (id) => {
   }
 };
 
+function togglePressureUnit() {
+  if (pressureUnit == pressureUnits.inHg) {
+    setPressureUnit(pressureUnits.hPa);
+  } else {
+    setPressureUnit(pressureUnits.inHg);
+  }
+}
+
+const setPressureUnit = (unit) => {
+  pressureUnit = unit;
+  dbug('pressure unit set to', pressureUnit);
+
+  let pressureUnitLocs = document.querySelectorAll(
+    '#pressureUnitBtn, .pressureUnitLabel'
+  );
+  pressureUnitLocs.forEach((unit) => (unit.innerText = pressureUnit));
+
+  if (pressureUnit == pressureUnits.inHg) {
+    deleteParam('pressureUnit');
+  } else {
+    addParam('pressureUnit', pressureUnit);
+  }
+
+  resetEnv();
+};
+
 // --- Environment ---
 
 const updateEnv = () => {
+  dbug('updating environment');
+  dbug('fieldDefaults', fieldDefaults);
+
   let fields = {
     fieldElev: Number(document.getElementById('fieldElev').value),
-    altimeter: Number(document.getElementById('altimeter').value),
+    pressure: Number(document.getElementById('pressure').value),
     surfaceTemp: Number(document.getElementById('surfaceTemp').value),
     plannedAlt: Number(document.getElementById('plannedAlt').value),
     kollsman: Number(document.getElementById('kollsman').value),
     oat: Number(document.getElementById('oat').value),
   };
-  if (debug) {
-    console.log('fields', fields);
-  }
+  dbug('fields', fields);
 
-  updateParams(fields);
+  updateFieldParams(fields);
 
   let calcs = {
     absoluteAlt: absoluteAlt(fields.plannedAlt, fields.fieldElev),
-    presCorr: pressureCorrection(fields.altimeter),
-    presAlt: Math.round(pressureAlt(fields.altimeter, fields.fieldElev)),
+    presCorr: pressureCorrection(fields.pressure, pressureUnit),
+    presAlt: pressureAlt(
+      pressureCorrection(fields.pressure, pressureUnit),
+      fields.fieldElev
+    ),
     isa: ISA(fields.plannedAlt),
     surfaceIsa: ISA(fields.fieldElev),
-    temp: {},
   };
   calcs.isaDev = ISADeviation(fields.plannedAlt, fields.oat);
   calcs.surfaceIsaDev = ISADeviation(fields.fieldElev, fields.surfaceTemp);
-  calcs.densAlt = Math.round(densityAlt(calcs.presAlt, fields.surfaceTemp));
-  calcs.indicatedAlt =
-    (fields.kollsman - fields.altimeter) * 1000 + fields.plannedAlt;
+  calcs.densAlt = densityAlt(calcs.presAlt, fields.surfaceTemp);
+  calcs.indicatedAlt = indicatedAlt(
+    fields.kollsman,
+    fields.pressure,
+    fields.plannedAlt,
+    pressureUnit
+  );
   calcs.trueAlt = trueAlt(
     fields.plannedAlt,
     absoluteAlt(fields.plannedAlt, fields.fieldElev),
     fields.oat
   );
 
-  if (debug) {
-    console.log('calcs', calcs);
-  }
+  dbug('calcs', calcs);
 
   const infoList = [
     `True (MSL): ${round2(calcs.trueAlt)}ft.`,
     `Absolute (AGL): ${calcs.absoluteAlt}ft.`,
-    `Indicated: ${round2(calcs.indicatedAlt)}ft.`,
-    `In Flight ISA: ${round2(calcs.isa)}&deg;C (ISA${
-      calcs.isaDev >= 0 ? '+' + round2(calcs.isaDev) : round2(calcs.isaDev)
-    }&deg;C)`,
-    `Pressure: ${calcs.presAlt}ft. (Corr. ${round2(calcs.presCorr)}ft.)`,
     `Surface ISA: ${round2(calcs.surfaceIsa)}&deg;C (ISA${
       calcs.surfaceIsaDev >= 0
         ? '+' + round2(calcs.surfaceIsaDev)
         : round2(calcs.surfaceIsaDev)
     }&deg;C)`,
-    `Density: ${calcs.densAlt}ft.`,
+    `Indicated: ${round2(calcs.indicatedAlt)}ft.`,
+    `In Flight ISA: ${round2(calcs.isa)}&deg;C (ISA${
+      calcs.isaDev >= 0 ? '+' + round2(calcs.isaDev) : round2(calcs.isaDev)
+    }&deg;C)`,
+    `Pressure: ${round2(calcs.presAlt)}ft. (Corr. ${round2(
+      calcs.presCorr
+    )}ft.)`,
+    `Density: ${round2(calcs.densAlt)}ft.`,
   ];
-  if (debug) {
-    console.log('infoList', infoList);
-  }
+  dbug('infoList', infoList);
 
   const info = document.getElementById('info');
   info.innerHTML = '';
@@ -99,7 +190,7 @@ const updateEnv = () => {
 
   const ground = document.getElementById('groundInfo');
   ground.innerHTML = '';
-  ground.innerHTML = `Elev. ${fields.fieldElev}ft - Temp. ${fields.surfaceTemp}&deg;C - Altimeter ${fields.altimeter}inHg`;
+  ground.innerHTML = `Elev.&nbsp;${fields.fieldElev}ft - Temp.&nbsp;${fields.surfaceTemp}&deg;C - Pressure&nbsp;${fields.pressure}${pressureUnit}`;
 
   const properties = {
     '--ground': fields.fieldElev / reductionFactor + 'px',
@@ -110,9 +201,7 @@ const updateEnv = () => {
     '--true': calcs.trueAlt / reductionFactor + 'px',
     '--absolute': fields.plannedAlt / reductionFactor + 'px',
   };
-  if (debug) {
-    console.log('properties', properties);
-  }
+  dbug('properties', properties);
 
   const root = document.documentElement;
   for (const [property, value] of Object.entries(properties)) {
@@ -121,7 +210,14 @@ const updateEnv = () => {
 };
 
 const resetEnv = () => {
-  setFields(fieldDefaults);
+  for (const [id, value] of Object.entries(fieldDefaults)) {
+    if (typeof value == 'object') {
+      document.getElementById(id).value = value[eval(value.type + 'Unit')];
+    } else {
+      document.getElementById(id).value = value;
+    }
+  }
+
   updateEnv();
   scrollToSea();
 };
@@ -169,19 +265,44 @@ const scrollToSea = () => {
 
 // --- GET Param handling ---
 
-const loadParams = () => {
+const loadFieldParams = () => {
   let params = new URLSearchParams(location.search);
   for (const [id, value] of Object.entries(fieldDefaults)) {
-    document.getElementById(id).value = params.has(id) ? params.get(id) : value;
+    if (typeof value == 'object') {
+      document.getElementById(id).value = params.has(id)
+        ? params.get(id)
+        : value[eval(value.type + 'Unit')];
+    } else {
+      document.getElementById(id).value = params.has(id)
+        ? params.get(id)
+        : value;
+    }
   }
 };
 
-const updateParams = (fields) => {
+const updateFieldParams = (fields) => {
   let params = new URLSearchParams(location.search);
   for (const [id, value] of Object.entries(fields)) {
-    if (value != fieldDefaults[id]) {
+    if (typeof fieldDefaults[id] == 'object') {
+      let fieldDefault = fieldDefaults[id];
+      if (value != fieldDefault[eval(fieldDefault.type + 'Unit')]) {
+        dbug(
+          'setting param',
+          id,
+          value,
+          'did not match',
+          fieldDefault[eval(fieldDefault.type + 'Unit')]
+        );
+        params.set(id, value);
+      } else {
+        dbug('deleting param', id, value);
+        params.delete(id);
+      }
+    } else if (value != fieldDefaults[id]) {
+      dbug('setting param', id, value, 'did not match', fieldDefaults[id]);
       params.set(id, value);
     } else {
+      dbug('deleting param', id, value);
       params.delete(id);
     }
   }
@@ -192,6 +313,40 @@ const updateParams = (fields) => {
   } else {
     newurl = `${protocol}//${host}${pathname}`;
   }
+
+  dbug('pushing state', newurl);
+  window.history.pushState({ path: newurl }, '', newurl);
+};
+
+const addParam = (id, value) => {
+  let params = new URLSearchParams(location.search);
+  dbug('setting param', id, value);
+  params.set(id, value);
+  let { protocol, host, pathname } = window.location;
+  let newurl = '';
+  if (params.toString() != '') {
+    newurl = `${protocol}//${host}${pathname}?${params.toString()}`;
+  } else {
+    newurl = `${protocol}//${host}${pathname}`;
+  }
+
+  dbug('pushing state', newurl);
+  window.history.pushState({ path: newurl }, '', newurl);
+};
+
+const deleteParam = (id) => {
+  let params = new URLSearchParams(location.search);
+  dbug('deleting param', id);
+  params.delete(id);
+  let { protocol, host, pathname } = window.location;
+  let newurl = '';
+  if (params.toString() != '') {
+    newurl = `${protocol}//${host}${pathname}?${params.toString()}`;
+  } else {
+    newurl = `${protocol}//${host}${pathname}`;
+  }
+
+  dbug('pushing state', newurl);
   window.history.pushState({ path: newurl }, '', newurl);
 };
 
@@ -229,21 +384,32 @@ const updateRulerScale = () => {
 
 const round2 = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
-const setFields = (fields) => {
-  for (const [id, value] of Object.entries(fields)) {
-    document.getElementById(id).value = value;
-  }
-};
-
 const setReductionFactor = (factor = 10) => {
   reductionFactor = factor;
   updateEnv();
   updateRulerScale();
 };
 
+function toggleDebug() {
+  if (debug) {
+    debug = false;
+    deleteParam('debug');
+  } else {
+    debug = true;
+    addParam('debug', debug);
+  }
+}
+
+const dbug = (...params) => {
+  if (debug) {
+    console.log(...params);
+  }
+};
+
 // --- Listeners ---
 
 window.addEventListener('DOMContentLoaded', () => {
+  // update environment on field value change
   for (const [id, value] of Object.entries(fieldDefaults)) {
     document.getElementById(id).addEventListener('change', () => {
       updateEnv();
@@ -254,10 +420,14 @@ window.addEventListener('DOMContentLoaded', () => {
     top: document.body.scrollHeight - document.body.offsetHeight - belowHeight,
   });
 
-  let params = new URLSearchParams(location.search);
-  debug = params.has('debug') ? params.get('debug') : false;
+  const pressureUnitLocs = document.querySelectorAll(
+    '#pressureUnitBtn, .pressureUnitLabel'
+  );
+  pressureUnitLocs.forEach((loc) => {
+    loc.innerText = pressureUnit;
+  });
 
   createRuler();
-  loadParams();
+  loadFieldParams();
   updateEnv();
 });

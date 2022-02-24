@@ -4,8 +4,8 @@
     --ui-radius: 18px;
     --label-radius: 12px;
     --label-offset: 45px;
-    --label-width: 74px;
-    --label-gap: 25px;
+    --label-width: 56px;
+    --label-gap: 10px;
 
     --ground: 0px;
     --planned: 0px;
@@ -54,6 +54,7 @@ body {
     right: 0;
     z-index: 110;
     border-bottom-left-radius: var(--ui-radius);
+    cursor: pointer;
 }
 
 #inputs {
@@ -85,6 +86,7 @@ input, button {
 
 #info {
     display: block;
+    width: 100%;
     background-color: rgba(255,255,255,0.89);
     flex-direction: column;
     gap: 5px;
@@ -199,7 +201,7 @@ altitudes > * > span {
     display: inline;
     width: var(--label-width);
     text-align: center;
-    font-size: 12px;
+    font-size: 10px;
     padding: 3px 4px;
     background-color: white;
     border-top: black 2px solid;
@@ -208,7 +210,7 @@ altitudes > * > span {
     border-top-right-radius: var(--label-radius);
     border-top-left-radius: var(--label-radius);
     position: absolute;
-    z-index: 20;
+    /* z-index: 20; */
     bottom: 0;
 }
 
@@ -229,28 +231,28 @@ aircraft {
 
     width: 116px;
     bottom: -54px;
-    left: calc(50% - 58px);
+    left: calc(58.5% - 58px);
 }
 
 indicated {
     bottom: calc((var(--sea-height) - 1px) + var(--indicated));
 }
 indicated > span {
-    left: 10px;
+    left: calc(var(--label-offset) + var(--label-width) + var(--label-gap));
 }
 
 pressure {
     bottom: calc((var(--sea-height) - 1px) + var(--pressure));
 }
 pressure > span {
-    left: calc(50% - var(--label-width) - (var(--label-gap) / 2));
+    left: calc(var(--label-offset) + (var(--label-width) * 0.5));
 }
 
 density {
     bottom: calc((var(--sea-height) - 1px) + var(--density));
 }
 density > span {
-    left: calc(50% + (var(--label-gap) / 2));
+    left: calc(var(--label-offset) + (var(--label-width) * 1.5) + var(--label-gap));
 }
 
 true {
@@ -269,6 +271,11 @@ seaLevel > span {
 }
 
 @media screen and (min-width: 600px) {
+    :root {
+        --label-offset: 55px;
+        --label-width: 80px;
+    }
+
     #toggle {
         display: none;
     }
@@ -289,6 +296,7 @@ seaLevel > span {
 
     #info {
         display: inline-block;
+        width: unset;
         padding: 0 30px 15px 30px;
         border-bottom-left-radius: unset;
         padding-top: 0px !important;
@@ -301,27 +309,37 @@ seaLevel > span {
     }
 
     altitudes > * > span {
+        font-size: 13px;
+    }
+}
+
+@media screen and (min-width: 800px) {
+    :root {
         --label-offset: 60px;
         --label-width: 90px;
+        --label-gap: 15px;
+    }
+
+    altitudes > * > span {
         font-size: 16px;
     }
 
     aircraft {
         width: 150px;
         bottom: -55px;
-        left: calc(50% - 75px);
+        left: calc(58% - 75px);
     }
 
-    indicated > span {
-        left: 30%;
-    }
+    /* indicated > span {
+        left: 25vw;
+    } */
 
     pressure > span {
-        left: 24%;
+        left: calc(var(--label-offset) + (var(--label-width) + var(--label-gap)) * 2);
     }
 
     density > span {
-        right: 25%;
+        right: calc(var(--label-offset) + var(--label-width) + var(--label-gap));
         left: unset;
     }
 }
