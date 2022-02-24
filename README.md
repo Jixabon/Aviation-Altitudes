@@ -14,13 +14,26 @@ From what I could find these are the commonly used formulas, although my numbers
 
 ### Fields
 
+Located at the very top of the screen or opened by the menu button.
+
 - Field Elevation `#fieldElev`
+  - The elevation of the airport
 - Altimeter `#altimeter`
-- Field Temperature `#fieldTemp`
-- Indicated Altitude `#indicated`
-  - Theoretical altitude that the plane will fly
+  - The pressure at surface level of the airport (Also what should be set in the kollsman window or as your altimeter setting)
+- Surface Temperature `#surfaceTemp`
+  - The temperature observed at the surface or airport
+- Planned Altitude `#plannedAlt`
+  - The altitude that you "intend" to fly
+- Kollsman Setting `#kollsman`
+  - This is the actual setting that shows in the altimeter instrument. Try setting it incorrectly and see what happens!
 - Outside Air Temperature `#oat`
-  - Temperature observed by the plane's instruments
+  - Temperature observed in the air by the plane's instruments
+
+### Altitude Info
+
+Found at the top of the screen under the fields. Most in the list are self explanatory but some are a little odd.
+
+- Indicated Altitude: For the sake of this tool this is the theoretical reading on the planes altimeter
 
 ### Altitude Rulers
 
@@ -42,15 +55,17 @@ The Aviation Weather Center has a free API, however, is not available to ajax re
 
 Illustrate where clouds would form (or are if Airport lookup is implemented) based on temperatures and lapse rates.
 
-### Kollsman Window
-
-I'm not sure how this one would be implemented but the idea is to illustrate what happens when you set the kollsman window to something other than local pressure or standard pressure aka set incorrectly.
-
 ## Options
 
 Currently refreshing the page will reset these options.
 
 ### Debug
+
+#### GET parameter method
+
+Just add `?&debug=true` to the url to enable debugging.
+
+#### Browser console method
 
 Run the following in the browser console and all actions after will output debug information.
 
@@ -58,7 +73,7 @@ Run the following in the browser console and all actions after will output debug
 debug = true;
 ```
 
-and to disable debugging
+and to disable debugging run
 
 ```
 debug = false;

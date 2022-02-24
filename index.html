@@ -15,47 +15,33 @@
     <div id="ui">
         <div id="inputs">
             <div>
-                <label>Field Elev. (MSL)</label>
+                <label>Airport Elev.</label>
                 <input type="number" id="fieldElev" placeholder="190"/>
             </div>
             <div>
-                <label>Altimeter</label>
-                <input type="number" id="altimeter" placeholder="29.92" />
+                <label>Altimeter inHg</label>
+                <input type="number" id="altimeter" step=".01" placeholder="29.92" />
             </div>
             <div>
-                <label>Field Temp. &deg;C</label>
-                <input type="number" id="fieldTemp" placeholder="15" />
+                <label>Surface Temp. &deg;C</label>
+                <input type="number" id="surfaceTemp" placeholder="15" />
             </div>
             <div>
-                <label>Indicated Alt.</label>
-                <input type="number" id="indicated" placeholder="3500" />
+                <label>Planned Alt. (MSL)</label>
+                <input type="number" id="plannedAlt" step="100" placeholder="3500" />
+            </div>
+            <div>
+                <label>Kollsman inHg</label>
+                <input type="number" id="kollsman" step=".01" placeholder="29.92" />
             </div>
             <div>
                 <label>In Flight OAT&deg;C</label>
                 <input type="number" id="oat" placeholder="15" />
             </div>
-            <button onClick="updateEnv();">Update</button>
+            <!-- <button onClick="updateEnv();">Update</button> -->
             <button onClick="resetEnv();">Reset</button>
         </div>
         <div id="info">
-            <div>
-                Field Elev. ISA: <span id="infoFieldISA"></span>&deg;C (ISA<span id="infoFieldISADiff"></span>&deg;C)
-            </div>
-            <div>
-                Pressure: <span id="infoPresAlt"></span>ft.
-            </div>
-            <div>
-                Density: <span id="infoDensAlt"></span>ft.
-            </div>
-            <div>
-                In Flight ISA: <span id="infoISATemp"></span>&deg;C (ISA<span id="infoISADiff"></span>&deg;C)
-            </div>
-            <div>
-                True (MSL): <span id="infoTrueAlt"></span>ft.
-            </div>
-            <div>
-                Absolute (AGL): <span id="infoAbsoAlt"></span>ft.
-            </div>
         </div>
         <div id="views">
             <div>
@@ -73,26 +59,28 @@
     </div>
     <environment>
         <sea></sea>
-        <ground></ground>
+        <ground>
+            <span id="groundInfo"></span>
+        </ground>
         <below></below>
         <altitudes>
-            <indicated id="indicated">
-                <span>Indicated</span>
+            <absolute>
+                <span>Absolute</span>
                 <aircraft></aircraft>
+            </absolute>
+            <indicated>
+                <span>Indicated</span>
             </indicated>
-            <pressure id="pressure">
+            <pressure>
                 <span>Pressure</span>
             </pressure>
-            <density id="density">
+            <density>
                 <span>Density</span>
                 <ruler class="right" ticks="140"></ruler>
             </density>
-            <true id="true">
+            <true>
                 <span>True</span>
             </true>
-            <absolute id="absolute">
-                <span>Absolute</span>
-            </absolute>
             <seaLevel>
                 <span>Sea Level</span>
                 <ruler ticks="140"></ruler>
