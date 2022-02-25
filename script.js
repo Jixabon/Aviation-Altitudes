@@ -1,4 +1,15 @@
-const settingsFields = ['settingPressureUnit'];
+let store = window.localStorage;
+// load parameters into localStorage
+let params = new URLSearchParams(location.search);
+params.forEach((value, param) => {
+  store.setItem(param, value);
+});
+
+const units = {
+  altitude: { default: 'ft', Feet: 'ft', Meters: 'm' },
+  pressure: { default: 'inHg', inHg: 'inHg', hPa: 'hPa' },
+  temp: { default: 'C', C: 'C', F: 'F' },
+};
 
 const fieldTypes = {
   altitude: 'altitude',
@@ -6,30 +17,11 @@ const fieldTypes = {
   temp: 'temp',
 };
 
-const altitudeFields = ['fieldElev', 'plannedAlt'];
-const altitudeUnits = { Feet: 'ft', Meters: 'm' };
-
-const pressureFields = ['pressure', 'kollsman'];
-const pressureUnits = { inHg: 'inHg', hPa: 'hPa' };
-
-const tempFields = ['surfaceTemp', 'oat'];
-const tempUnits = { C: 'C', F: 'F' };
-
-let params = new URLSearchParams(location.search);
-
-let reductionFactor = 10;
-let debug = params.has('debug') ? params.get('debug') : false;
-
-let altitudeUnit = altitudeUnits.Feet;
-let pressureUnit = params.has('pressureUnit')
-  ? params.get('pressureUnit')
-  : pressureUnits.inHg;
-let tempUnit = tempUnits.C;
-
 let fieldDefaults = {
   fieldElev: {
     type: fieldTypes.altitude,
     ft: 790,
+    m: 240.79,
   },
   pressure: {
     type: fieldTypes.pressure,
@@ -39,10 +31,12 @@ let fieldDefaults = {
   surfaceTemp: {
     type: fieldTypes.temp,
     C: 15,
+    F: 59,
   },
   plannedAlt: {
     type: fieldTypes.altitude,
     ft: 3500,
+    m: 1066.8,
   },
   kollsman: {
     type: fieldTypes.pressure,
@@ -52,7 +46,29 @@ let fieldDefaults = {
   oat: {
     type: fieldTypes.temp,
     C: 8,
+    F: 46.4,
   },
+};
+
+let settings = {
+  altitudeUnit:
+    store.getItem('altitudeUnit') !== null
+      ? store.getItem('altitudeUnit')
+      : units.altitude.default,
+  pressureUnit:
+    store.getItem('pressureUnit') !== null
+      ? store.getItem('pressureUnit')
+      : units.pressure.default,
+  tempUnit:
+    store.getItem('tempUnit') !== null
+      ? store.getItem('tempUnit')
+      : units.temp.default,
+  debug:
+    store.getItem('debug') !== null ? Boolean(store.getItem('debug')) : false,
+  reductionFactor:
+    store.getItem('reductionFactor') !== null
+      ? store.getItem('reductionFactor')
+      : 10,
 };
 
 const ISA = (alt) => (alt / 1000) * -2 + 15;
@@ -61,7 +77,7 @@ const TEC = (absoluteAlt, oat) =>
   4 * (absoluteAlt / 1000) * ISADeviation(absoluteAlt, oat);
 const pressureCorrection = (baro, unit) => {
   switch (unit) {
-    case pressureUnits.hPa:
+    case units.pressure.hPa:
       return (1013 - baro) * 30;
 
     default:
@@ -75,7 +91,7 @@ const trueAlt = (indicatedAlt, absoluteAlt, oat) =>
   indicatedAlt + TEC(absoluteAlt, oat);
 const indicatedAlt = (kollsman, baro, alt, unit) => {
   switch (unit) {
-    case pressureUnits.hPa:
+    case units.pressure.hPa:
       return (kollsman - baro) * 30 + alt;
 
     default:
@@ -83,44 +99,10 @@ const indicatedAlt = (kollsman, baro, alt, unit) => {
   }
 };
 
-const toggleOut = (id, btn, outMsg, inMsg) => {
-  const elem = document.getElementById(id);
-  if (elem.classList.contains('out')) {
-    elem.classList.remove('out');
-    if (btn) {
-      btn.innerHTML = inMsg;
-    }
-  } else {
-    elem.classList.add('out');
-    if (btn) {
-      btn.innerHTML = outMsg;
-    }
-  }
-};
-
-const setPressureUnit = (unit) => {
-  pressureUnit = unit;
-  dbug('pressure unit set to', pressureUnit);
-
-  let pressureUnitLocs = document.querySelectorAll(
-    '#pressureUnitBtn, .pressureUnitLabel'
-  );
-  pressureUnitLocs.forEach((unit) => (unit.innerText = pressureUnit));
-
-  if (pressureUnit == pressureUnits.inHg) {
-    deleteParam('pressureUnit');
-  } else {
-    addParam('pressureUnit', pressureUnit);
-  }
-
-  resetEnv();
-};
-
 // --- Environment ---
 
 const updateEnv = () => {
   dbug('updating environment');
-  dbug('fieldDefaults', fieldDefaults);
 
   let fields = {
     fieldElev: Number(document.getElementById('fieldElev').value),
@@ -132,13 +114,13 @@ const updateEnv = () => {
   };
   dbug('fields', fields);
 
-  updateFieldParams(fields);
+  updateState(fields);
 
   let calcs = {
     absoluteAlt: absoluteAlt(fields.plannedAlt, fields.fieldElev),
-    presCorr: pressureCorrection(fields.pressure, pressureUnit),
+    presCorr: pressureCorrection(fields.pressure, settings.pressureUnit),
     presAlt: pressureAlt(
-      pressureCorrection(fields.pressure, pressureUnit),
+      pressureCorrection(fields.pressure, settings.pressureUnit),
       fields.fieldElev
     ),
     isa: ISA(fields.plannedAlt),
@@ -151,7 +133,7 @@ const updateEnv = () => {
     fields.kollsman,
     fields.pressure,
     fields.plannedAlt,
-    pressureUnit
+    settings.pressureUnit
   );
   calcs.trueAlt = trueAlt(
     fields.plannedAlt,
@@ -162,21 +144,21 @@ const updateEnv = () => {
   dbug('calcs', calcs);
 
   const infoList = [
-    `True (MSL): ${round2(calcs.trueAlt)}ft.`,
-    `Absolute (AGL): ${calcs.absoluteAlt}ft.`,
-    `Surface ISA: ${round2(calcs.surfaceIsa)}&deg;C (ISA${
+    `True (MSL): ${round2(calcs.trueAlt)}${settings.altitudeUnit}`,
+    `Absolute (AGL): ${calcs.absoluteAlt}${settings.altitudeUnit}`,
+    `Surface ISA: ${round2(calcs.surfaceIsa)}&deg;${settings.tempUnit} (ISA${
       calcs.surfaceIsaDev >= 0
         ? '+' + round2(calcs.surfaceIsaDev)
         : round2(calcs.surfaceIsaDev)
-    }&deg;C)`,
-    `Indicated: ${round2(calcs.indicatedAlt)}ft.`,
-    `In Flight ISA: ${round2(calcs.isa)}&deg;C (ISA${
+    }&deg;${settings.tempUnit})`,
+    `Indicated: ${round2(calcs.indicatedAlt)}${settings.altitudeUnit}`,
+    `In Flight ISA: ${round2(calcs.isa)}&deg;${settings.tempUnit} (ISA${
       calcs.isaDev >= 0 ? '+' + round2(calcs.isaDev) : round2(calcs.isaDev)
-    }&deg;C)`,
-    `Pressure: ${round2(calcs.presAlt)}ft. (Corr. ${round2(
+    }&deg;${settings.tempUnit})`,
+    `Pressure: ${round2(calcs.presAlt)}${settings.altitudeUnit} (Corr. ${round2(
       calcs.presCorr
-    )}ft.)`,
-    `Density: ${round2(calcs.densAlt)}ft.`,
+    )}${settings.altitudeUnit})`,
+    `Density: ${round2(calcs.densAlt)}${settings.altitudeUnit}`,
   ];
   dbug('infoList', infoList);
 
@@ -190,16 +172,16 @@ const updateEnv = () => {
 
   const ground = document.getElementById('groundInfo');
   ground.innerHTML = '';
-  ground.innerHTML = `Elev.&nbsp;${fields.fieldElev}ft - Temp.&nbsp;${fields.surfaceTemp}&deg;C - Pressure&nbsp;${fields.pressure}${pressureUnit}`;
+  ground.innerHTML = `Elev.&nbsp;${fields.fieldElev}${settings.altitudeUnit} - Temp.&nbsp;${fields.surfaceTemp}&deg;${settings.tempUnit} - Pressure&nbsp;${fields.pressure}${settings.pressureUnit}`;
 
   const properties = {
-    '--ground': fields.fieldElev / reductionFactor + 'px',
-    '--planned': fields.plannedAlt / reductionFactor + 'px',
-    '--indicated': calcs.indicatedAlt / reductionFactor + 'px',
-    '--pressure': calcs.presAlt / reductionFactor + 'px',
-    '--density': calcs.densAlt / reductionFactor + 'px',
-    '--true': calcs.trueAlt / reductionFactor + 'px',
-    '--absolute': fields.plannedAlt / reductionFactor + 'px',
+    '--ground': fields.fieldElev / settings.reductionFactor + 'px',
+    '--planned': fields.plannedAlt / settings.reductionFactor + 'px',
+    '--indicated': calcs.indicatedAlt / settings.reductionFactor + 'px',
+    '--pressure': calcs.presAlt / settings.reductionFactor + 'px',
+    '--density': calcs.densAlt / settings.reductionFactor + 'px',
+    '--true': calcs.trueAlt / settings.reductionFactor + 'px',
+    '--absolute': fields.plannedAlt / settings.reductionFactor + 'px',
   };
   dbug('properties', properties);
 
@@ -211,8 +193,9 @@ const updateEnv = () => {
 
 const resetEnv = () => {
   for (const [id, value] of Object.entries(fieldDefaults)) {
+    store.removeItem(id);
     if (typeof value == 'object') {
-      document.getElementById(id).value = value[eval(value.type + 'Unit')];
+      document.getElementById(id).value = value[settings[`${value.type}Unit`]];
     } else {
       document.getElementById(id).value = value;
     }
@@ -271,91 +254,57 @@ const scrollToSea = () => {
   });
 };
 
-// --- GET Param handling ---
+// --- State handling ---
 
-const loadFieldParams = () => {
-  let params = new URLSearchParams(location.search);
+const initFields = () => {
   for (const [id, value] of Object.entries(fieldDefaults)) {
     if (typeof value == 'object') {
-      document.getElementById(id).value = params.has(id)
-        ? params.get(id)
-        : value[eval(value.type + 'Unit')];
+      document.getElementById(id).value =
+        store.getItem(id) !== null
+          ? store.getItem(id)
+          : value[settings[`${value.type}Unit`]];
     } else {
-      document.getElementById(id).value = params.has(id)
-        ? params.get(id)
-        : value;
+      document.getElementById(id).value =
+        store.getItem(id) !== null ? store.getItem(id) : value;
     }
   }
 };
 
-const updateFieldParams = (fields) => {
-  let params = new URLSearchParams(location.search);
+const initSettingsPanel = () => {
+  let settingsPressureUnit = document.getElementById('settingPressureUnit');
+  settingsPressureUnit.value = settings.pressureUnit;
+
+  let settingsDebug = document.getElementById('settingDebug');
+  settingsDebug.checked = settings.debug;
+};
+
+const updateState = (fields) => {
   for (const [id, value] of Object.entries(fields)) {
     if (typeof fieldDefaults[id] == 'object') {
       let fieldDefault = fieldDefaults[id];
-      if (value != fieldDefault[eval(fieldDefault.type + 'Unit')]) {
+      if (value != fieldDefault[settings[`${fieldDefault.type}Unit`]]) {
         dbug(
-          'setting param',
+          'storing',
           id,
           value,
           'did not match',
-          fieldDefault[eval(fieldDefault.type + 'Unit')]
+          fieldDefault[settings[`${fieldDefault.type}Unit`]]
         );
-        params.set(id, value);
+        store.setItem(id, value);
       } else {
-        dbug('deleting param', id, value);
-        params.delete(id);
+        dbug('removing', id, value);
+        store.removeItem(id);
       }
     } else if (value != fieldDefaults[id]) {
-      dbug('setting param', id, value, 'did not match', fieldDefaults[id]);
-      params.set(id, value);
+      dbug('storing', id, value, 'did not match', fieldDefaults[id]);
+      store.setItem(id, value);
     } else {
       dbug('deleting param', id, value);
-      params.delete(id);
+      store.removeItem(id);
     }
   }
-  let { protocol, host, pathname } = window.location;
-  let newurl = '';
-  if (params.toString() != '') {
-    newurl = `${protocol}//${host}${pathname}?${params.toString()}`;
-  } else {
-    newurl = `${protocol}//${host}${pathname}`;
-  }
 
-  dbug('pushing state', newurl);
-  window.history.pushState({ path: newurl }, '', newurl);
-};
-
-const addParam = (id, value) => {
-  let params = new URLSearchParams(location.search);
-  dbug('setting param', id, value);
-  params.set(id, value);
-  let { protocol, host, pathname } = window.location;
-  let newurl = '';
-  if (params.toString() != '') {
-    newurl = `${protocol}//${host}${pathname}?${params.toString()}`;
-  } else {
-    newurl = `${protocol}//${host}${pathname}`;
-  }
-
-  dbug('pushing state', newurl);
-  window.history.pushState({ path: newurl }, '', newurl);
-};
-
-const deleteParam = (id) => {
-  let params = new URLSearchParams(location.search);
-  dbug('deleting param', id);
-  params.delete(id);
-  let { protocol, host, pathname } = window.location;
-  let newurl = '';
-  if (params.toString() != '') {
-    newurl = `${protocol}//${host}${pathname}?${params.toString()}`;
-  } else {
-    newurl = `${protocol}//${host}${pathname}`;
-  }
-
-  dbug('pushing state', newurl);
-  window.history.pushState({ path: newurl }, '', newurl);
+  document.getElementById('settingLink').value = generateShareLink();
 };
 
 // --- Ruler ---
@@ -367,7 +316,7 @@ const createRuler = () => {
     let alt = (ticks.valueOf() / 2) * 1000;
     for (var i = 0; i < ticks; i++) {
       let tick = document.createElement('tick');
-      tick.style.marginBottom = 1000 / 2 / reductionFactor - 2 + 'px';
+      tick.style.marginBottom = 1000 / 2 / settings.reductionFactor - 2 + 'px';
 
       if (i % 2 == 0) {
         let span = document.createElement('span');
@@ -384,7 +333,7 @@ const createRuler = () => {
 const updateRulerScale = () => {
   const ticks = document.querySelectorAll('tick');
   for (let tick of ticks) {
-    tick.style.marginBottom = 1000 / 2 / reductionFactor - 2 + 'px';
+    tick.style.marginBottom = 1000 / 2 / settings.reductionFactor - 2 + 'px';
   }
 };
 
@@ -392,28 +341,79 @@ const updateRulerScale = () => {
 
 const round2 = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
+const toggleOut = (id, btn, outMsg, inMsg) => {
+  const elem = document.getElementById(id);
+  if (elem.classList.contains('out')) {
+    elem.classList.remove('out');
+    if (btn) {
+      btn.innerHTML = inMsg;
+    }
+  } else {
+    elem.classList.add('out');
+    if (btn) {
+      btn.innerHTML = outMsg;
+    }
+  }
+};
+
+const setUnit = (unit, value = null) => {
+  let newVal = value ? value : units[unit].default;
+  settings[`${unit}Unit`] = newVal;
+  dbug(`${unit} unit set to`, newVal);
+
+  let unitLabels = document.querySelectorAll(`.${unit}UnitLabel`);
+  unitLabels.forEach((label) => (label.innerText = newVal));
+
+  if (newVal == units[unit].default) {
+    store.removeItem(`${unit}Unit`);
+  } else {
+    store.setItem(`${unit}Unit`, newVal);
+  }
+
+  resetEnv();
+
+  document.getElementById('settingLink').value = generateShareLink();
+};
+
+const generateShareLink = () => {
+  let params = new URLSearchParams(location.search);
+
+  let items = Object.keys(store);
+  items.forEach((item) => {
+    params.set(item, store.getItem(item));
+  });
+
+  let { protocol, host, pathname } = window.location;
+  let shareLink = '';
+  if (params.toString() != '') {
+    shareLink = `${protocol}//${host}${pathname}?${params.toString()}`;
+  }
+
+  return shareLink;
+};
+
+const setDebug = (value) => {
+  settings.debug = Boolean(value);
+  if (value == false) {
+    store.removeItem('debug');
+  } else {
+    store.setItem('debug', Boolean(value));
+  }
+
+  document.getElementById('settingLink').value = generateShareLink();
+};
+
 const setReductionFactor = (factor = 10) => {
-  reductionFactor = factor;
-  // @TODO we need to reduce the environment height when the reduction factor is changed
+  settings.reductionFactor = factor;
   // const environment = document.getElementById('environment');
   // environment.style.height.value = (10 - factor) * 1000 + 7000;
   updateEnv();
   updateRulerScale();
 };
 
-function toggleDebug() {
-  if (debug) {
-    debug = false;
-    deleteParam('debug');
-  } else {
-    debug = true;
-    addParam('debug', debug);
-  }
-}
-
-const dbug = (...params) => {
-  if (debug) {
-    console.log(...params);
+const dbug = (...args) => {
+  if (settings.debug) {
+    console.log(...args);
   }
 };
 
@@ -431,14 +431,23 @@ window.addEventListener('DOMContentLoaded', () => {
     top: document.body.scrollHeight - document.body.offsetHeight - belowHeight,
   });
 
-  const pressureUnitLocs = document.querySelectorAll(
-    '#pressureUnitBtn, .pressureUnitLabel'
-  );
-  pressureUnitLocs.forEach((loc) => {
-    loc.innerText = pressureUnit;
+  const altitudeUnitLocs = document.querySelectorAll('.altitudeUnitLabel');
+  altitudeUnitLocs.forEach((loc) => {
+    loc.innerText = settings.altitudeUnit;
   });
 
+  const pressureUnitLocs = document.querySelectorAll('.pressureUnitLabel');
+  pressureUnitLocs.forEach((loc) => {
+    loc.innerText = settings.pressureUnit;
+  });
+
+  const tempUnitLocs = document.querySelectorAll('.tempUnitLabel');
+  tempUnitLocs.forEach((loc) => {
+    loc.innerText = settings.tempUnit;
+  });
+
+  initFields();
+  initSettingsPanel();
   createRuler();
-  loadFieldParams();
   updateEnv();
 });
