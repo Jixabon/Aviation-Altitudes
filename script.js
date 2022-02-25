@@ -1,3 +1,5 @@
+const settingsFields = ['settingPressureUnit'];
+
 const fieldTypes = {
   altitude: 'altitude',
   pressure: 'pressure',
@@ -81,22 +83,14 @@ const indicatedAlt = (kollsman, baro, alt, unit) => {
   }
 };
 
-const toggleMenu = (id) => {
-  const inputs = document.getElementById(id);
-  if (inputs.classList.contains('out')) {
-    inputs.classList.remove('out');
+const toggleOut = (id) => {
+  const elem = document.getElementById(id);
+  if (elem.classList.contains('out')) {
+    elem.classList.remove('out');
   } else {
-    inputs.classList.add('out');
+    elem.classList.add('out');
   }
 };
-
-function togglePressureUnit() {
-  if (pressureUnit == pressureUnits.inHg) {
-    setPressureUnit(pressureUnits.hPa);
-  } else {
-    setPressureUnit(pressureUnits.inHg);
-  }
-}
 
 const setPressureUnit = (unit) => {
   pressureUnit = unit;
@@ -225,40 +219,48 @@ const resetEnv = () => {
 // --- Scrolling ---
 
 const belowHeight = 1000;
-const getScrollLocation = (height) => {
+const getScrollLocation = (height = 0) => {
   let seaHeight = parseInt(
     getComputedStyle(document.documentElement).getPropertyValue('--sea-height')
   );
   let scrollHeight = document.body.scrollHeight - belowHeight;
   let screenHeight = document.body.offsetHeight * 0.55;
+
+  // just go to the bottom if the item is below the focus point
+  if (height + seaHeight < document.body.offsetHeight * 0.45) {
+    return (
+      document.body.scrollHeight - document.body.offsetHeight - belowHeight
+    );
+  }
+
   return scrollHeight - (height + seaHeight + screenHeight);
 };
 
 const scrollToPlane = () => {
-  let plannedAlt = parseInt(
-    getComputedStyle(document.documentElement).getPropertyValue('--planned')
-  );
-
   window.scrollTo({
-    top: getScrollLocation(plannedAlt),
+    top: getScrollLocation(
+      parseInt(
+        getComputedStyle(document.documentElement).getPropertyValue('--planned')
+      )
+    ),
     behavior: 'smooth',
   });
 };
 
 const scrollToGround = () => {
-  let ground = parseInt(
-    getComputedStyle(document.documentElement).getPropertyValue('--ground')
-  );
-
   window.scrollTo({
-    top: getScrollLocation(ground),
+    top: getScrollLocation(
+      parseInt(
+        getComputedStyle(document.documentElement).getPropertyValue('--ground')
+      )
+    ),
     behavior: 'smooth',
   });
 };
 
 const scrollToSea = () => {
   window.scrollTo({
-    top: document.body.scrollHeight - document.body.offsetHeight - belowHeight,
+    top: getScrollLocation(),
     behavior: 'smooth',
   });
 };
@@ -386,6 +388,9 @@ const round2 = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
 const setReductionFactor = (factor = 10) => {
   reductionFactor = factor;
+  // @TODO we need to reduce the environment height when the reduction factor is changed
+  // const environment = document.getElementById('environment');
+  // environment.style.height.value = (10 - factor) * 1000 + 7000;
   updateEnv();
   updateRulerScale();
 };
