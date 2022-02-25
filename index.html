@@ -42,13 +42,15 @@
                 <label>In Flight OAT&deg;C</label>
                 <input type="number" id="oat" placeholder="15" />
             </div>
-            <div id="resetRow">
-                <button id="resetBtn" onClick="resetEnv();">Reset</button>
-            </div>
             <div id="inputButtons">
-                <button id="settingsBtn" onClick="toggleOut('settingsWrapper');">Settings</button>
-                <button id="infoBtn" onClick="toggleOut('info', this, 'Hide Data', 'Show Data');">Show Data</button>
-                <button id="fieldsBtn" onClick="toggleOut('ui', this, 'Hide Fields', 'Show Fields');">Show Fields</button>
+                <div id="resetRow">
+                    <button id="resetBtn" onClick="resetEnv();">Reset</button>
+                </div>
+                <div id="controlRow">
+                    <button id="settingsBtn" onClick="toggleOut('settingsWrapper');">Settings</button>
+                    <button id="infoBtn" onClick="toggleOut('info', this, 'Hide Data', 'Show Data');">Show Data</button>
+                    <button id="fieldsBtn" onClick="toggleOut('ui', this, 'Hide Fields', 'Show Fields');">Show Fields</button>
+                </div>
             </div>
         </inputs>
         <info id="info">
