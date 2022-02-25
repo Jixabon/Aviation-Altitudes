@@ -43,10 +43,6 @@ Located at the very top of the screen or opened by the menu button.
 - Outside Air Temperature `#oat`
   - Temperature observed in the air by the plane's instruments
 
-### Pressure Unit Button
-
-Use to switch the unit that pressure is in. Current supported units are `inHg` and `hPa`.
-
 ### Reset Button
 
 Resets all fields to their "default" values.
@@ -77,17 +73,21 @@ The Aviation Weather Center has a free API, however, is not available to ajax re
 
 Illustrate where clouds would form (or are if Airport lookup is implemented) based on temperatures and lapse rates.
 
-## Options
+## Settings
 
-### Debug
+### Pressure Unit
 
-Run the following in the browser console and all actions after will output debug information.
+Adjust what pressure unit you want to use: `inHg`, `hPa`.
 
-```
-toggleDebug();
-```
+### Share/Bookmark
 
-### Reduction Factor
+A link to share your settings configuration.
+
+### Developer
+
+Turn on/off developer options
+
+#### Reduction Factor
 
 To use a 1:1 pixel to foot ratio would be unruly so there is a reduction factor implemented. The default is 10:1. To change the reduction factor run the command a pass an integer of your choosing.
 
@@ -101,7 +101,7 @@ or no parameter to go back to default
 setReductionFactor();
 ```
 
-### Field Defaults
+#### Field Defaults
 
 You can see the default values used when the reset button is pressed by peeping the `fieldDefaults` variable. These are not saved and will be cleared on page refresh. To change these values simply set them like below:
 
