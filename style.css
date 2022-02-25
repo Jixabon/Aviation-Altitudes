@@ -45,7 +45,6 @@ html {
 body {
     font-family: 'Cabin', sans-serif;
     font-weight: 600;
-    /* font-family: Arial, Helvetica, sans-serif; */
 }
 
 a {
@@ -66,12 +65,23 @@ ui.out {
     top: 0px;
 }
 
-.input-wrapper {
+.input-wrapper, .input-inline-wrapper {
     display: flex;
+}
+.input-wrapper .input-inline-wrapper {
+    align-self: stretch;
+}
+.input-wrapper {
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
     gap: 3px;
+}
+.input-inline-wrapper {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
 }
 input, select {
     width: 100%;
@@ -85,6 +95,10 @@ input, select, button {
     border-radius: 100px;
 }
 
+.help-text {
+    font-size: 10px;
+}
+
 button {
     background: transparent;
     border: 1px #fff solid;
@@ -92,9 +106,62 @@ button {
     cursor: pointer;
 }
 
+.switch {
+    --switch-padding: 4px;
+    --dot-size: 23.5px;
+    position: relative;
+    display: inline-block;
+    width: calc((var(--dot-size) + var(--switch-padding)) * 2);
+    height: calc(var(--dot-size) + var(--switch-padding) * 2);
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: calc(var(--dot-size) + var(--switch-padding) * 2);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: var(--dot-size);
+    width: var(--dot-size);
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(var(--dot-size));
+}
+
 inputs, info, views, settings {
     color: white;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0,0,0,0.7);
     border: #4e4e4e 1px solid;
     box-shadow: #0000002e 5px 5px 8px;
 }
@@ -178,9 +245,8 @@ settings {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    max-width: 500px;
-    min-width: 300px;
-    margin: auto;
+    width: 100%;
+    margin: auto 30px;
     padding: var(--ui-padding);
     border-radius: var(--ui-radius);
 }
@@ -393,7 +459,7 @@ seaLevel > span {
         width: unset;
     }
     inputs input {
-        width: 130px;
+        width: 122px;
     }
     #inputButtons {
         flex-direction: row;
@@ -408,10 +474,10 @@ seaLevel > span {
         display: none;
     }
 
-    /* info {
-        display: block;
-        width: unset;
-    } */
+    settings {
+        max-width: 350px;
+        margin: auto;
+    }
 
     views {
         --views-width: 600px;
