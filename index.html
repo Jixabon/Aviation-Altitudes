@@ -5,46 +5,66 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aviation Altitudes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cabin:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="script.js"></script>
 </head>
 <body>
-    <div id="toggle" onClick="toggleMenu('inputs');">
-        <span>Menu</span>
-    </div>
-    <div id="ui">
-        <div id="inputs">
-            <div>
+    <ui id="ui">
+        <inputs id="inputs">
+            <div class="input-wrapper">
                 <label>Airport Elev.</label>
                 <input type="number" id="fieldElev" placeholder="190"/>
             </div>
-            <div>
+            <div class="input-wrapper">
                 <label>Pressure <span class="pressureUnitLabel"></span></label>
                 <input type="number" id="pressure" step=".01" placeholder="29.92" />
             </div>
-            <div>
+            <div class="input-wrapper">
                 <label>Surface Temp. &deg;C</label>
                 <input type="number" id="surfaceTemp" placeholder="15" />
             </div>
-            <div>
-                <label>Planned Alt. (MSL)</label>
+            <!-- <div class="input-wrapper">
+                <label>Dew Temp. &deg;C</label>
+                <input type="number" id="dewTemp" placeholder="10" />
+            </div> -->
+            <div class="input-wrapper">
+                <label>Planned Alt.</label>
                 <input type="number" id="plannedAlt" step="100" placeholder="3500" />
             </div>
-            <div>
+            <div class="input-wrapper">
                 <label>Kollsman <span class="pressureUnitLabel"></span></label>
                 <input type="number" id="kollsman" step=".01" placeholder="29.92" />
             </div>
-            <div>
+            <div class="input-wrapper">
                 <label>In Flight OAT&deg;C</label>
                 <input type="number" id="oat" placeholder="15" />
             </div>
-            <!-- <button onClick="updateEnv();">Update</button> -->
-            <button id="pressureUnitBtn" onClick="togglePressureUnit();">inHg</button>
-            <button id="resetBtn" onClick="resetEnv();">Reset</button>
-        </div>
-        <div id="info">
-        </div>
-        <div id="views">
+            <div id="inputButtons">
+                <button id="resetBtn" onClick="resetEnv();">Reset</button>
+                <button id="settingsBtn" onClick="toggleOut('settings');">Settings</button>
+                <button id="infoBtn" onClick="toggleOut('info');">Info</button>
+                <button id="fieldsBtn" onClick="toggleOut('ui');">Fields</button>
+            </div>
+        </inputs>
+        <info id="info">
+        </info>
+        <settings id="settings">
+            <div>
+                <h1>Settings</h1>
+                <div class="input-wrapper">
+                    <label>Pressure Unit</label>
+                    <select id="settingPressureUnit" onchange="setPressureUnit(this.value);">
+                        <option value="inHg">inHg</option>
+                        <option value="hPa">hPa</option>
+                    </select>
+                </div>
+                <button onClick="toggleOut('settings');">Close</button>
+            </div>
+        </settings>
+        <views id="views">
             <div>
                 <button onClick="scrollToPlane();">Go to Plane</button>
                 <button onClick="scrollToGround();">Go to Ground</button>
@@ -54,11 +74,11 @@
                 <a href="https://github.com/Jixabon/Aviation-Altitudes" target="_blank">GitHub/Help</a> &middot; <a href="https://ko-fi.com/jixabon" target="_blank">Buy me a coffee</a>
             </p>
             <p class="smallprint">
-                This tool is for learning purposes only and should not be use in flight planning.
+                This tool is for learning purposes only and should not be used in flight planning.
             </p>
-        </div>
-    </div>
-    <environment>
+        </views>
+    </ui>
+    <environment id="environment">
         <sea></sea>
         <ground>
             <span id="groundInfo"></span>
