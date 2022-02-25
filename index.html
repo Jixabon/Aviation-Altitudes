@@ -15,23 +15,23 @@
     <ui id="ui">
         <inputs id="inputs">
             <div class="input-wrapper">
-                <label>Airport Elev.</label>
-                <input type="number" id="fieldElev" placeholder="190"/>
+                <label>Airport Elev. <span class="altitudeUnitLabel"></span></label>
+                <input type="number" id="fieldElev" placeholder="790"/>
             </div>
             <div class="input-wrapper">
                 <label>Pressure <span class="pressureUnitLabel"></span></label>
                 <input type="number" id="pressure" step=".01" placeholder="29.92" />
             </div>
             <div class="input-wrapper">
-                <label>Surface Temp. &deg;C</label>
-                <input type="number" id="surfaceTemp" placeholder="15" />
+                <label>Surface Temp.&deg;<span class="tempUnitLabel"></span></label>
+                <input type="number" id="surfaceTemp" step=".1" placeholder="15" />
             </div>
             <!-- <div class="input-wrapper">
-                <label>Dew Temp. &deg;C</label>
+                <label>Dew Temp.&deg;<span class="tempUnitLabel"></span></label>
                 <input type="number" id="dewTemp" placeholder="10" />
             </div> -->
             <div class="input-wrapper">
-                <label>Planned Alt.</label>
+                <label>Planned Alt. <span class="altitudeUnitLabel"></span></label>
                 <input type="number" id="plannedAlt" step="100" placeholder="3500" />
             </div>
             <div class="input-wrapper">
@@ -39,8 +39,8 @@
                 <input type="number" id="kollsman" step=".01" placeholder="29.92" />
             </div>
             <div class="input-wrapper">
-                <label>In Flight OAT&deg;C</label>
-                <input type="number" id="oat" placeholder="15" />
+                <label>In Flight OAT&deg;<span class="tempUnitLabel"></span></label>
+                <input type="number" id="oat" step=".1" placeholder="15" />
             </div>
             <div id="inputButtons">
                 <div id="resetRow">
@@ -60,10 +60,24 @@
                 <h1>Settings</h1>
                 <div class="input-wrapper">
                     <label>Pressure Unit</label>
-                    <select id="settingPressureUnit" onchange="setPressureUnit(this.value);">
+                    <select id="settingPressureUnit" onchange="setUnit('pressure', this.value);">
                         <option value="inHg">inHg</option>
                         <option value="hPa">hPa</option>
                     </select>
+                </div>
+                <div class="input-wrapper">
+                    <label>Share/Bookmark</label>
+                    <input type="text" id="settingLink" placeholder="Change some settings!" />
+                </div>
+                <div class="input-wrapper">
+                    <div class="input-inline-wrapper">
+                        <span>Debug</span>
+                        <label class="switch">
+                            <input type="checkbox" id="settingDebug" onchange="setDebug(this.checked);">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <span class="help-text">Enabling this setting could cause things to not display properly.</span>
                 </div>
                 <button onClick="toggleOut('settingsWrapper');">Close</button>
             </settings>
