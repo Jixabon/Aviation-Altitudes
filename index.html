@@ -44,15 +44,15 @@
             </div>
             <div id="inputButtons">
                 <button id="resetBtn" onClick="resetEnv();">Reset</button>
-                <button id="settingsBtn" onClick="toggleOut('settings');">Settings</button>
+                <button id="settingsBtn" onClick="toggleOut('settingsWrapper');">Settings</button>
                 <button id="infoBtn" onClick="toggleOut('info');">Info</button>
                 <button id="fieldsBtn" onClick="toggleOut('ui');">Fields</button>
             </div>
         </inputs>
         <info id="info">
         </info>
-        <settings id="settings">
-            <div>
+        <div id="settingsWrapper">
+            <settings>
                 <h1>Settings</h1>
                 <div class="input-wrapper">
                     <label>Pressure Unit</label>
@@ -61,9 +61,9 @@
                         <option value="hPa">hPa</option>
                     </select>
                 </div>
-                <button onClick="toggleOut('settings');">Close</button>
-            </div>
-        </settings>
+                <button onClick="toggleOut('settingsWrapper');">Close</button>
+            </settings>
+        </div>
         <views id="views">
             <div>
                 <button onClick="scrollToPlane();">Go to Plane</button>
