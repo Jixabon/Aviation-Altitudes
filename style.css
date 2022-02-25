@@ -2,11 +2,22 @@
     --sea-height: 130px;
     --transition-time: 1.2s;
     --ui-radius: 18px;
-    --label-radius: 12px;
-    --label-offset: 45px;
+    --ui-padding: 15px;
+    --label-radius: 53px;
+    --ruler-offset: 45px;
     --label-width: 56px;
     --label-gap: 10px;
+    --field-number: 7;
 
+    --color-space: rgb(28 28 73);
+    --color-middle: rgb(100 165 246);
+    --color-sky: rgb(242 230 191);
+    --color-sunset: #fcbf3e;
+    --color-ground: #7db97d;
+    --color-sea: rgb(92 139 187);
+    --color-below: rgb(135 111 98);
+
+    /* --environment: 3700px; */
     --ground: 0px;
     --planned: 0px;
     --indicated: 0px;
@@ -32,118 +43,180 @@ html {
 }
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Cabin', sans-serif;
+    font-weight: 600;
+    /* font-family: Arial, Helvetica, sans-serif; */
 }
 
-#ui {
+a {
+    color: white;
+}
+
+ui {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     width: 100%;
     position: fixed;
     z-index: 100;
+    top: -194px;
+    transition: top .5s ease-in-out;
+}
+ui.out {
+    top: 0px;
 }
 
-#toggle {
-    background-color: rgba(255,255,255,0.7);
-    border-bottom: black 2px solid;
-    border-left: black 2px solid;
-    padding: 15px 10px;
-    position: fixed;
-    top: 0;
-    right: 0;
-    z-index: 110;
-    border-bottom-left-radius: var(--ui-radius);
-    cursor: pointer;
-}
-
-#inputs {
-    display: none;
-    background-color: rgba(255,255,255,0.89);
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 15px 30px;
-    padding-top: 50px;
-}
-#inputs.out {
-    display: flex !important;
-}
-
-#inputs > div {
-    width: 100%;
+.input-wrapper {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
+    gap: 3px;
 }
-
-#inputs input {
+input, select {
     width: 100%;
 }
-input, button {
+input, select, button {
+    font-family: 'Cabin', sans-serif;
+    font-weight: 600;
     font-size: 16px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 100px;
 }
 
-#info {
-    display: block;
-    width: 100%;
-    background-color: rgba(255,255,255,0.89);
-    flex-direction: column;
-    gap: 5px;
+button {
+    background: transparent;
+    border: 1px #fff solid;
+    color: #fff;
+    cursor: pointer;
+}
+
+inputs, info, views, settings > div {
+    color: white;
+    background-color: rgba(0,0,0,0.3);
+    border: #4e4e4e 1px solid;
+    backdrop-filter: blur(3px);
+    box-shadow: #0000002e 5px 5px 8px;
+}
+
+inputs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 10px;
     border-bottom-right-radius: var(--ui-radius);
     border-bottom-left-radius: var(--ui-radius);
-    padding: 0 30px 15px 30px;
+    padding: var(--ui-padding);
 }
-#inputs:not(.out) ~ #info {
-    padding-top: 15px;
+#inputButtons {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+#infoBtn {
+    margin-left: auto;
+}
+inputs .input-wrapper {
+    width: calc(50% - 5px);
 }
 
-#views {
-    background-color: rgba(255,255,255,0.89);
+info {
+    display: block;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 14px;
+    border-radius: var(--ui-radius);
+    padding: var(--ui-padding);
+    margin-right: var(--ruler-offset);
+    margin-left: var(--ruler-offset);
+    margin-top: 15px;
+    opacity: 0;
+    position: absolute;
+    top: -100%;
+    z-index: -1;
+    transition: top .2s ease-out, opacity .4s ease-out;
+}
+info.out {
+    transition: top .4s ease-out, opacity .2s ease-out;
+    opacity: 1;
+    top: 100%;
+}
+
+settings {
+    display: none;
+    background-color: rgba(15,15,15,0.89);
+    width: 100%;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    z-index: 200;
+}
+settings > div {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 500px;
+    min-width: 300px;
+    margin: auto;
+    padding: var(--ui-padding);
+    border-radius: var(--ui-radius);
+}
+settings h1 {
+    margin: 0;
+}
+settings.out {
+    display: flex !important;
+}
+
+views {
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 5px;
     position: fixed;
     bottom: 0;
-    padding: 15px 0;
+    padding: var(--ui-padding);
     border-top-right-radius: var(--ui-radius);
     border-top-left-radius: var(--ui-radius);
     text-align: center;
+    border-bottom: none;
 }
-#views > div {
+views > div {
     display: flex;
     justify-content: space-around;
 }
-#views > p {
+views > p {
     font-size: 14px;
     margin: 0;
 }
-#views > p.smallprint {
+views > p.smallprint {
     font-size: 10px;
 }
 
 environment {
     display: block;
     width: 100%;
-    height: 7000px;
+    height: var(--environment, 7000px);
     position: relative;
     background: rgb(0, 190, 228);
-    background: linear-gradient(180deg, rgba(9,9,121,1) 0%, rgba(4,125,197,1) 36%, rgba(0,212,255,1) 100%);
+    background: linear-gradient(180deg, var(--color-space) 0%, var(--color-middle) 36%, var(--color-sky) 90%, var(--color-sunset) 100%);
 }
 
 sea {
-    background-color: rgb(0, 0, 150);
+    background-color: var(--color-sea);
     height: var(--sea-height);
-    width: 100%;
+    width: 30%;
     display: block;
+    border-top: #759fd0 6px solid;
     position: absolute;
     bottom: 0;
     left: 0;
 }
 
 ground {
-    background-color: green;
+    background-color: var(--color-ground);
     height: calc(var(--sea-height) + var(--ground));
     width: 70%;
     display: block;
@@ -152,14 +225,22 @@ ground {
     position: absolute;
     bottom: 0;
     right: 0;
+    border: #a1d09f 6px solid;
+    border-bottom: none;
+    border-top-right-radius: 25px;
     border-top-left-radius: 25px;
     transition: height var(--transition-time) ease-out;
 }
+#groundInfo {
+    color: #4c7150;
+}
 
 below {
-    background-color: rgb(114, 36, 0);
+    background-color: var(--color-below);
     width: 100%;
     height: 1000px;
+    border: #b2a18b8a 6px solid;
+    box-shadow: #00000047 0px 0px 15px;
     position: absolute;
     bottom: -1000px;
 }
@@ -167,6 +248,7 @@ below {
 ruler {
     position: relative;
     bottom: 0;
+    font-size: 14px;
 }
 tick {
     display: block;
@@ -194,31 +276,32 @@ altitudes > * {
     display: block;
     position: absolute;
     bottom: 0px;
-    border-bottom: black 2px solid;
+    border-bottom: #0b364f36 2px solid;
+    /* border-bottom: black 2px solid; */
     transition: bottom var(--transition-time) ease-out;
 }
 altitudes > * > span {
     display: inline;
     width: var(--label-width);
+    color: #6e7378;
     text-align: center;
     font-size: 10px;
-    padding: 3px 4px;
-    background-color: white;
-    border-top: black 2px solid;
-    border-right: black 2px solid;
-    border-left: black 2px solid;
-    border-top-right-radius: var(--label-radius);
-    border-top-left-radius: var(--label-radius);
+    padding: 8px 0px;
+    background-color: #f7f7f7;
+    border: #c6cdd5 2px solid;
+    border-bottom: none;
+    border-radius: var(--label-radius);
+    box-shadow: #00000036 4px 4px 0px;
     position: absolute;
-    /* z-index: 20; */
-    bottom: 0;
+    bottom: -15px;
+    z-index: 20;
 }
 
 absolute {
     bottom: calc((var(--sea-height) - 1px) + var(--absolute));
 }
 absolute > span {
-    right: var(--label-offset);
+    right: var(--ruler-offset);
 }
 aircraft {
     background-image: url('./cirrus.png');
@@ -238,28 +321,28 @@ indicated {
     bottom: calc((var(--sea-height) - 1px) + var(--indicated));
 }
 indicated > span {
-    left: calc(var(--label-offset) + var(--label-width) + var(--label-gap));
+    left: calc(var(--ruler-offset) + var(--label-width) + var(--label-gap));
 }
 
 pressure {
     bottom: calc((var(--sea-height) - 1px) + var(--pressure));
 }
 pressure > span {
-    left: calc(var(--label-offset) + (var(--label-width) * 0.5));
+    left: calc(var(--ruler-offset) + (var(--label-width) * 0.5));
 }
 
 density {
     bottom: calc((var(--sea-height) - 1px) + var(--density));
 }
 density > span {
-    left: calc(var(--label-offset) + (var(--label-width) * 1.5) + var(--label-gap));
+    left: calc(var(--ruler-offset) + (var(--label-width) * 1.5) + var(--label-gap));
 }
 
 true {
     bottom: calc((var(--sea-height) - 1px) + var(--true));
 }
 true > span {
-    left: var(--label-offset);
+    left: var(--ruler-offset);
 }
 
 seaLevel {
@@ -272,56 +355,70 @@ seaLevel > span {
 
 @media screen and (min-width: 600px) {
     :root {
-        --label-offset: 55px;
+        --ruler-offset: 55px;
         --label-width: 80px;
     }
 
-    #toggle {
+    ui {
+        top: 0 !important;
+    }
+
+    inputs {
+        display: inline-flex !important;
+        border-radius: var(--ui-radius);
+        padding-top: 15px;
+        margin-left: var(--ruler-offset);
+        margin-right: var(--ruler-offset);
+        margin-top: 15px;
+    }
+    inputs .input-wrapper {
+        width: unset;
+    }
+    inputs input {
+        width: 130px;
+    }
+    #inputButtons {
+        margin-top: unset;
+    }
+    #infoBtn {
+        margin-left: unset;
+    }
+    #fieldsBtn {
         display: none;
     }
 
-    #inputs {
-        display: inline-flex !important;
-        border-bottom-right-radius: var(--ui-radius);
-        padding-top: 15px;
-    }
-
-    #inputs > div {
-        width: unset;
-    }
-
-    #inputs input {
-        width: 136px;
-    }
-
-    #info {
+    info {
         display: inline-block;
         width: unset;
-        padding: 0 30px 15px 30px;
-        border-bottom-left-radius: unset;
-        padding-top: 0px !important;
     }
 
-    #views {
+    views {
         --views-width: 600px;
         width: var(--views-width);
         left: calc(50% - (var(--views-width) / 2));
     }
 
+    ruler {
+        font-size: 16px;
+    }
+
     altitudes > * > span {
         font-size: 13px;
+        bottom: -17px;
     }
 }
 
 @media screen and (min-width: 800px) {
     :root {
-        --label-offset: 60px;
+        --ruler-offset: 60px;
         --label-width: 90px;
         --label-gap: 15px;
     }
 
     altitudes > * > span {
         font-size: 16px;
+        padding: 10px 0px;
+        bottom: -21px;
     }
 
     aircraft {
@@ -330,16 +427,12 @@ seaLevel > span {
         left: calc(58% - 75px);
     }
 
-    /* indicated > span {
-        left: 25vw;
-    } */
-
     pressure > span {
-        left: calc(var(--label-offset) + (var(--label-width) + var(--label-gap)) * 2);
+        left: calc(var(--ruler-offset) + (var(--label-width) + var(--label-gap)) * 2);
     }
 
     density > span {
-        right: calc(var(--label-offset) + var(--label-width) + var(--label-gap));
+        right: calc(var(--ruler-offset) + var(--label-width) + var(--label-gap));
         left: unset;
     }
 }
