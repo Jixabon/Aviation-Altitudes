@@ -83,12 +83,18 @@ const indicatedAlt = (kollsman, baro, alt, unit) => {
   }
 };
 
-const toggleOut = (id) => {
+const toggleOut = (id, btn, outMsg, inMsg) => {
   const elem = document.getElementById(id);
   if (elem.classList.contains('out')) {
     elem.classList.remove('out');
+    if (btn) {
+      btn.innerHTML = inMsg;
+    }
   } else {
     elem.classList.add('out');
+    if (btn) {
+      btn.innerHTML = outMsg;
+    }
   }
 };
 
