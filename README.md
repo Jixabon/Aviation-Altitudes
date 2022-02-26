@@ -137,3 +137,7 @@ fieldDefaults = {
 ```
 
 Be sure to press the reset button afterwards.
+
+## Google Analytics
+
+Google Analytics is used to note the active user base of this project and is not used for any marketing or advertizing purposes, nor will any information be sold or released to the public. If you'd like to learn more, see Google Analytics' [Privacy Policy](https://policies.google.com/technologies/partner-sites).
