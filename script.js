@@ -75,8 +75,8 @@ const ISA = (alt) => 15 - (alt / 1000) * 2;
 const ISADeviation = (alt, oat) => oat - ISA(alt);
 const TEC = (absoluteAlt, alt, oat) =>
   4 * (absoluteAlt / 1000) * ISADeviation(alt, oat);
-const pressureCorrection = (baro, unit) => {
-  switch (unit) {
+const pressureCorrection = (baro) => {
+  switch (settings.pressureUnit) {
     case units.pressure.hPa:
       return (baro - 1013) * 30;
 
@@ -84,10 +84,11 @@ const pressureCorrection = (baro, unit) => {
       return (29.92 - baro) * 1000; // inHg
   }
 };
-const pressureAlt = (presCorr, fieldElev) => presCorr + fieldElev;
+const pressureAlt = (alt, presCorr) => alt + presCorr;
 const densityAlt = (presAlt, oat, alt) => presAlt + 120 * (oat - ISA(alt));
 const absoluteAlt = (trueAlt, fieldElev) => trueAlt - fieldElev;
 const trueAlt = (indicatedAlt, tec) => indicatedAlt + tec;
+const indicatedAlt = (alt, presCorr) => alt - presCorr;
 
 // --- Environment ---
 
@@ -106,15 +107,14 @@ const updateEnv = () => {
 
   updateState(fields);
 
-  let calcs = {
-    presCorr: pressureCorrection(fields.pressure, settings.pressureUnit),
-    presAlt: pressureAlt(
-      pressureCorrection(fields.pressure, settings.pressureUnit),
-      fields.fieldElev
-    ),
-    isa: ISA(fields.plannedAlt),
-    surfaceIsa: ISA(fields.fieldElev),
-  };
+  let calcs = {};
+  calcs.presCorr = pressureCorrection(fields.pressure);
+  calcs.presAlt = pressureAlt(
+    fields.fieldElev,
+    pressureCorrection(fields.pressure)
+  );
+  calcs.isa = ISA(fields.plannedAlt);
+  calcs.surfaceIsa = ISA(fields.fieldElev);
   calcs.isaDev = ISADeviation(fields.plannedAlt, fields.oat);
   calcs.surfaceIsaDev = ISADeviation(fields.fieldElev, fields.surfaceTemp);
   calcs.densAlt = densityAlt(
@@ -122,9 +122,9 @@ const updateEnv = () => {
     fields.surfaceTemp,
     fields.fieldElev
   );
-  calcs.indicatedAlt = pressureAlt(
-    pressureCorrection(fields.kollsman, settings.pressureUnit),
-    fields.plannedAlt
+  calcs.indicatedAlt = indicatedAlt(
+    pressureAlt(pressureCorrection(fields.pressure), fields.plannedAlt),
+    pressureCorrection(fields.kollsman)
   );
   calcs.absoluteAlt = absoluteAlt(calcs.indicatedAlt, fields.fieldElev);
   calcs.tec = TEC(calcs.absoluteAlt, fields.plannedAlt, fields.oat);
