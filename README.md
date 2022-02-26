@@ -1,6 +1,6 @@
 # Aviation-Altitudes
 
-A quick tool to visualize the different altidudes in aviation and to see how pressure and temperature change them.
+A quick tool to visualize the different altitudes in aviation and to see how pressure and temperature change them.
 
 Do you like the project or has hit helped you study and understand the topics around altitudes? Feel free to [Buy me a coffee!](https://ko-fi.com/jixabon)
 
@@ -8,21 +8,16 @@ Do you like the project or has hit helped you study and understand the topics ar
 
 From what I could find these are the commonly used formulas, although my numbers aren't matching the results of apps like Foreflight and the Sportys E6B. So I'm not sure what formulas they use. If you have any suggestions for more accurate formulas, please send them my way.
 
-- ISA = (Alt / 1000) &times; -2 + 15
+- ISA = 15 + (Alt / 1000) &times; 2
 - ISA Deviation = OAT - ISA
 - Temperature Error Correction (TEC) = 4 &times; (Alt / 1000) &times; ISADev
 - Pressure Correction (PresCorr)
   - inHg: (29.92 - Baro) &times; 1000
-  - hPa: (1013 - Baro) &times; 30
+  - hPa: (Baro - 1013) &times; 30
 - Pressure Altitude = PresCorr + FieldElev
-- Density Altitude = PressureAlt + 120 &times; (OAT - 15)
+- Density Altitude = PressureAlt + 120 &times; (OAT - ISA)
 - Absolute Altitude = TrueAlt - FieldAlt
 - True Altitude = IndicatedAlt + TEC
-- Indicated Altitude
-  - inHg: (Kollsman - Baro) &times; 1000 + Alt
-  - hPa: (Kollsman - Baro) &times; 30 + alt
-
-For the sake of this project True Altitude is calculated off of Planned Altitude to allow the "altitude indicator" to be experimented with.
 
 ## Interface
 
@@ -34,7 +29,7 @@ Located at the very top of the screen or opened by the menu button.
   - The elevation of the airport
 - Pressure `#pressure`
   - The pressure at the surface level/airport (Also what should be set in the kollsman window/altimeter setting)
-- Surface Temperature `#surfaceTemp`
+- Surface OAT `#surfaceTemp`
   - The temperature observed at the surface or airport
 - Planned Altitude `#plannedAlt`
   - The altitude that you "intend" to fly
@@ -55,7 +50,7 @@ Found at the top of the screen under the fields. Most in the list are self expla
 
 ### Altitude Rulers
 
-There are two rulers on the interface on the left and right edges. The ruler on the left starts from sea level, while the ruler on the right starts from where ever Density Altitude is calculated to be.
+There are two rulers on the interface on the left and right edges. The ruler on the left starts from sea level, while the ruler on the right starts with Density Altitude at ground level to give a quick idea of what the airplane might be feeling.
 
 ### "Go To" Buttons
 
