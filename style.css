@@ -21,10 +21,12 @@
     --ground: 0px;
     --planned: 0px;
     --indicated: 0px;
+    --datum: 0px;
     --pressure: 0px;
     --density: 0px;
     --true: 0px;
     --absolute: 0px;
+    --feels: 0px;
 }
 
 * {
@@ -291,7 +293,7 @@ environment {
 sea {
     background-color: var(--color-sea);
     height: var(--sea-height);
-    width: 30%;
+    width: 100%;
     display: block;
     border-top: #759fd0 6px solid;
     position: absolute;
@@ -387,24 +389,18 @@ absolute {
 absolute > span {
     right: var(--ruler-offset);
 }
-aircraft {
-    background-image: url('./cirrus.png');
-    background-position: center;
-    background-size: contain;
-    background-repeat: no-repeat;
-    position: absolute;
-    display: inline;
-    height: 100px;
-
-    width: 116px;
-    bottom: -54px;
-    left: calc(58.5% - 58px);
-}
 
 indicated {
     bottom: calc((var(--sea-height) - 1px) + var(--indicated));
 }
 indicated > span {
+    right: var(--ruler-offset);
+}
+
+datum {
+    bottom: calc((var(--sea-height) - 1px) + var(--datum));
+}
+datum > span {
     left: calc(var(--ruler-offset) + var(--label-width) + var(--label-gap));
 }
 
@@ -428,12 +424,33 @@ true {
 true > span {
     left: var(--ruler-offset);
 }
+aircraft {
+    background-image: url('./cirrus.png');
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: absolute;
+    display: inline;
+    height: 100px;
+
+    width: 116px;
+    bottom: -54px;
+    left: calc(58.5% - 58px);
+}
 
 seaLevel {
     border-bottom: transparent 2px solid;
     bottom: calc(var(--sea-height) - 1px);
 }
 seaLevel > span {
+    display: none;
+}
+
+feels {
+    border-bottom: transparent 2px solid;
+    bottom: calc(var(--sea-height) - 1px + var(--feels));
+}
+feels > span {
     display: none;
 }
 
