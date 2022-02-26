@@ -32,7 +32,7 @@
                 <input type="number" id="pressure" step=".01" placeholder="29.92" />
             </div>
             <div class="input-wrapper">
-                <label>Surface Temp.&deg;<span class="tempUnitLabel"></span></label>
+                <label>Surface OAT&deg;<span class="tempUnitLabel"></span></label>
                 <input type="number" id="surfaceTemp" step=".1" placeholder="15" />
             </div>
             <!-- <div class="input-wrapper">
@@ -88,6 +88,10 @@
                     </div>
                     <span class="help-text">Enabling this setting could cause things to not display properly.</span>
                 </div>
+                <!-- <div class="input-wrapper" debug>
+                    <label>Reduction Factor</label>
+                    <input type="number" id="settingReductionFactor" placeholder="10"/>
+                </div> -->
                 <button onClick="toggleOut('settingsWrapper');">Close</button>
             </settings>
         </div>
@@ -118,19 +122,22 @@
                 <span>Sea Level</span>
                 <ruler ticks="140"></ruler>
             </seaLevel>
-            <absolute>
-                <span>Absolute</span>
-                <aircraft></aircraft>
-            </absolute>
+            <feels>
+                <span>Feels</span>
+                <ruler class="right" ticks="140"></ruler>
+            </feels>
             <pressure>
                 <span>Pressure</span>
             </pressure>
             <density>
                 <span>Density</span>
-                <ruler class="right" ticks="140"></ruler>
             </density>
+            <datum>
+                <span>Datum</span>
+            </datum>
             <true>
                 <span>True</span>
+                <aircraft></aircraft>
             </true>
             <indicated>
                 <span>Indicated</span>
