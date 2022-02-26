@@ -30,7 +30,7 @@ let fieldDefaults = {
   },
   surfaceTemp: {
     type: fieldTypes.temp,
-    C: 15,
+    C: 13.42,
     F: 59,
   },
   plannedAlt: {
@@ -71,33 +71,23 @@ let settings = {
       : 10,
 };
 
-const ISA = (alt) => (alt / 1000) * -2 + 15;
+const ISA = (alt) => 15 - (alt / 1000) * 2;
 const ISADeviation = (alt, oat) => oat - ISA(alt);
-const TEC = (absoluteAlt, oat) =>
-  4 * (absoluteAlt / 1000) * ISADeviation(absoluteAlt, oat);
+const TEC = (absoluteAlt, alt, oat) =>
+  4 * (absoluteAlt / 1000) * ISADeviation(alt, oat);
 const pressureCorrection = (baro, unit) => {
   switch (unit) {
     case units.pressure.hPa:
-      return (1013 - baro) * 30;
+      return (baro - 1013) * 30;
 
     default:
       return (29.92 - baro) * 1000; // inHg
   }
 };
-const pressureAlt = (presCorr, fieldElv) => presCorr + fieldElv;
-const densityAlt = (presAlt, oat) => presAlt + 120 * (oat - 15);
+const pressureAlt = (presCorr, fieldElev) => presCorr + fieldElev;
+const densityAlt = (presAlt, oat, alt) => presAlt + 120 * (oat - ISA(alt));
 const absoluteAlt = (trueAlt, fieldElev) => trueAlt - fieldElev;
-const trueAlt = (indicatedAlt, absoluteAlt, oat) =>
-  indicatedAlt + TEC(absoluteAlt, oat);
-const indicatedAlt = (kollsman, baro, alt, unit) => {
-  switch (unit) {
-    case units.pressure.hPa:
-      return (kollsman - baro) * 30 + alt;
-
-    default:
-      return (kollsman - baro) * 1000 + alt; // inHg
-  }
-};
+const trueAlt = (indicatedAlt, tec) => indicatedAlt + tec;
 
 // --- Environment ---
 
@@ -117,7 +107,6 @@ const updateEnv = () => {
   updateState(fields);
 
   let calcs = {
-    absoluteAlt: absoluteAlt(fields.plannedAlt, fields.fieldElev),
     presCorr: pressureCorrection(fields.pressure, settings.pressureUnit),
     presAlt: pressureAlt(
       pressureCorrection(fields.pressure, settings.pressureUnit),
@@ -128,24 +117,26 @@ const updateEnv = () => {
   };
   calcs.isaDev = ISADeviation(fields.plannedAlt, fields.oat);
   calcs.surfaceIsaDev = ISADeviation(fields.fieldElev, fields.surfaceTemp);
-  calcs.densAlt = densityAlt(calcs.presAlt, fields.surfaceTemp);
-  calcs.indicatedAlt = indicatedAlt(
-    fields.kollsman,
-    fields.pressure,
-    fields.plannedAlt,
-    settings.pressureUnit
+  calcs.densAlt = densityAlt(
+    calcs.presAlt,
+    fields.surfaceTemp,
+    fields.fieldElev
   );
-  calcs.trueAlt = trueAlt(
-    fields.plannedAlt,
-    absoluteAlt(fields.plannedAlt, fields.fieldElev),
-    fields.oat
+  calcs.indicatedAlt = pressureAlt(
+    pressureCorrection(fields.kollsman, settings.pressureUnit),
+    fields.plannedAlt
   );
+  calcs.absoluteAlt = absoluteAlt(calcs.indicatedAlt, fields.fieldElev);
+  calcs.tec = TEC(calcs.absoluteAlt, fields.plannedAlt, fields.oat);
+  calcs.trueAlt = trueAlt(calcs.indicatedAlt, calcs.tec);
 
   dbug('calcs', calcs);
 
   const infoList = [
-    `True (MSL): ${round2(calcs.trueAlt)}${settings.altitudeUnit}`,
-    `Absolute (AGL): ${calcs.absoluteAlt}${settings.altitudeUnit}`,
+    `True (MSL): ${round2(calcs.trueAlt)}${settings.altitudeUnit} (TEC ${round2(
+      calcs.tec
+    )}${settings.altitudeUnit})`,
+    `Absolute (AGL): ${round2(calcs.absoluteAlt)}${settings.altitudeUnit}`,
     `Surface ISA: ${round2(calcs.surfaceIsa)}&deg;${settings.tempUnit} (ISA${
       calcs.surfaceIsaDev >= 0
         ? '+' + round2(calcs.surfaceIsaDev)
@@ -178,10 +169,13 @@ const updateEnv = () => {
     '--ground': fields.fieldElev / settings.reductionFactor + 'px',
     '--planned': fields.plannedAlt / settings.reductionFactor + 'px',
     '--indicated': calcs.indicatedAlt / settings.reductionFactor + 'px',
+    '--datum': calcs.presCorr / settings.reductionFactor + 'px',
     '--pressure': calcs.presAlt / settings.reductionFactor + 'px',
     '--density': calcs.densAlt / settings.reductionFactor + 'px',
     '--true': calcs.trueAlt / settings.reductionFactor + 'px',
-    '--absolute': fields.plannedAlt / settings.reductionFactor + 'px',
+    '--absolute': calcs.absoluteAlt / settings.reductionFactor + 'px',
+    '--feels':
+      (fields.fieldElev - calcs.densAlt) / settings.reductionFactor + 'px',
   };
   dbug('properties', properties);
 
@@ -363,6 +357,8 @@ const setUnit = (unit, value = null) => {
 
   let unitLabels = document.querySelectorAll(`.${unit}UnitLabel`);
   unitLabels.forEach((label) => (label.innerText = newVal));
+
+  // set placeholders to default value according to unit
 
   if (newVal == units[unit].default) {
     store.removeItem(`${unit}Unit`);
