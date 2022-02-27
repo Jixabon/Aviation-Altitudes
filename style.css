@@ -18,7 +18,7 @@
     --color-below: rgb(135 111 98);
 
     /* --environment: 3700px; */
-    --ground: 0px;
+    --elevation: 0px;
     --planned: 0px;
     --indicated: 0px;
     --datum: 0px;
@@ -27,6 +27,7 @@
     --true: 0px;
     --absolute: 0px;
     --feels: 0px;
+    --freezing: 0px;
 }
 
 * {
@@ -60,7 +61,7 @@ ui {
     width: 100%;
     position: fixed;
     z-index: 100;
-    top: -235px;
+    top: -298px;
     transition: top .5s ease-in-out;
 }
 ui.out {
@@ -88,7 +89,7 @@ ui.out {
 input, select {
     width: 100%;
 }
-input, select, button {
+input, select, button, .btn {
     font-family: 'Cabin', sans-serif;
     font-weight: 600;
     font-size: 16px;
@@ -101,10 +102,12 @@ input, select, button {
     font-size: 10px;
 }
 
-button {
+button, .btn {
     background: transparent;
     border: 1px #fff solid;
     color: #fff;
+    text-align: center;
+    text-decoration: none;
     cursor: pointer;
 }
 
@@ -150,11 +153,11 @@ button {
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
+  background-color: var(--color-ground);
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
+  box-shadow: 0 0 1px var(--color-ground);
 }
 
 input:checked + .slider:before {
@@ -206,6 +209,10 @@ inputs .input-wrapper {
     width: calc(50% - 5px);
 }
 
+.calculated {
+    color: rgb(179, 17, 17);
+}
+
 info {
     display: block;
     flex-direction: column;
@@ -255,6 +262,13 @@ settings {
 settings h1 {
     margin: 0;
 }
+#settingsButtons {
+    display: flex;
+    gap: 15px;
+}
+#settingsButtons > *{
+    width: 100%;
+}
 
 views {
     width: 100%;
@@ -293,17 +307,29 @@ environment {
 sea {
     background-color: var(--color-sea);
     height: var(--sea-height);
-    width: 100%;
+    width: 30%;
     display: block;
+    padding: 15px;
     border-top: #759fd0 6px solid;
     position: absolute;
     bottom: 0;
     left: 0;
 }
+/* sea::before {
+    content: '';
+    display: block;
+    background-color: var(--color-sea);
+    height: var(--sea-height);
+    width: 100vw;
+    border-top: #759fd0 6px solid;
+} */
+#seaInfo {
+    color: #2c4155;
+}
 
 ground {
     background-color: var(--color-ground);
-    height: calc(var(--sea-height) + var(--ground));
+    height: calc(var(--sea-height) + var(--elevation));
     width: 70%;
     display: block;
     text-align: center;
@@ -452,6 +478,13 @@ feels {
 }
 feels > span {
     display: none;
+}
+
+freezingLevel {
+    bottom: calc((var(--sea-height) - 1px) + var(--freezing));
+}
+freezingLevel> span {
+    left: calc(var(--ruler-offset) + (var(--label-width) * 1.5) + var(--label-gap));
 }
 
 @media screen and (min-width: 600px) {
