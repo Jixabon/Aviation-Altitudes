@@ -307,7 +307,8 @@ environment {
 sea {
     background-color: var(--color-sea);
     height: var(--sea-height);
-    width: 30%;
+    /* width: 30%; */
+    width: 100%;
     display: block;
     padding: 15px;
     border-top: #759fd0 6px solid;
@@ -317,11 +318,14 @@ sea {
 }
 /* sea::before {
     content: '';
+    width: 70%;
     display: block;
     background-color: var(--color-sea);
     height: var(--sea-height);
-    width: 100vw;
     border-top: #759fd0 6px solid;
+    position: absolute;
+    bottom: 0;
+    left: 30%;
 } */
 #seaInfo {
     color: #2c4155;
@@ -427,7 +431,8 @@ datum {
     bottom: calc((var(--sea-height) - 1px) + var(--datum));
 }
 datum > span {
-    left: calc(var(--ruler-offset) + var(--label-width) + var(--label-gap));
+    width: calc(var(--label-width) * 1.5);
+    left: calc(var(--ruler-offset) + var(--label-width));
 }
 
 pressure {
@@ -441,7 +446,7 @@ density {
     bottom: calc((var(--sea-height) - 1px) + var(--density));
 }
 density > span {
-    left: calc(var(--ruler-offset) + (var(--label-width) * 1.5) + var(--label-gap));
+    left: calc(var(--ruler-offset) + (var(--label-width) * 1.7) + var(--label-gap));
 }
 
 true {
@@ -484,7 +489,7 @@ freezingLevel {
     bottom: calc((var(--sea-height) - 1px) + var(--freezing));
 }
 freezingLevel> span {
-    left: calc(var(--ruler-offset) + (var(--label-width) * 1.5) + var(--label-gap));
+    right: calc(var(--ruler-offset) + var(--label-width) + var(--label-gap));
 }
 
 @media screen and (min-width: 600px) {
@@ -564,12 +569,15 @@ freezingLevel> span {
         left: calc(58% - 75px);
     }
 
+    datum > span {
+        left: calc(var(--ruler-offset) + var(--label-width) + var(--label-gap));
+    }
+
     pressure > span {
-        left: calc(var(--ruler-offset) + (var(--label-width) + var(--label-gap)) * 2);
+        left: calc(var(--ruler-offset) + (var(--label-width) + var(--label-gap)) * 2.5);
     }
 
     density > span {
-        right: calc(var(--ruler-offset) + var(--label-width) + var(--label-gap));
-        left: unset;
+        left: calc(var(--ruler-offset) + (var(--label-width) + var(--label-gap)) * 3.5);
     }
 }
