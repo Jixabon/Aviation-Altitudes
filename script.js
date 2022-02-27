@@ -143,7 +143,6 @@ const runCalculations = (fields) => {
 
   calcs.presCorr = pressureCorrection(fields.pressure);
   calcs.presAlt = pressureAlt(fields.elevation, calcs.presCorr);
-  console.log(calcs.presAlt);
   calcs.densAlt = densityAlt(
     calcs.presAlt,
     fields.surfaceTemp,
@@ -189,18 +188,12 @@ const runCalculations = (fields) => {
     calcs.indicatedAlt = indicatedAlt(
       fields.indicatedAlt,
       pressureCorrection(fields.kollsman)
-    ); // fields.indicatedAlt + pressureCorrection(fields.kollsman);
-
-    console.log(
-      indicatedAlt(fields.indicatedAlt, pressureCorrection(fields.kollsman))
     );
 
     calcs.absoluteAlt = absoluteAlt(fields.indicatedAlt, fields.elevation);
 
     calcs.presAltFlight = fields.indicatedAlt - calcs.presCorr;
     calcs.tec = TEC(calcs.absoluteAlt, calcs.presAltFlight, fields.oat);
-    // calcs.tec = TEC(calcs.absoluteAlt, calcs.presAlt, fields.oat);
-    // calcs.tec = TEC(calcs.absoluteAlt, fields.indicatedAlt, fields.oat);
 
     calcs.trueAlt = trueAlt(fields.indicatedAlt, calcs.tec);
     document.getElementById('trueAlt').value = round2(calcs.trueAlt);
