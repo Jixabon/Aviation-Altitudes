@@ -88,6 +88,7 @@ ui.out {
 }
 input, select {
     width: 100%;
+    margin: 0;
 }
 input, select, button, .btn {
     font-family: 'Cabin', sans-serif;
@@ -307,8 +308,7 @@ environment {
 sea {
     background-color: var(--color-sea);
     height: var(--sea-height);
-    /* width: 30%; */
-    width: 100%;
+    width: 30%;
     display: block;
     padding: 15px;
     border-top: #759fd0 6px solid;
@@ -316,17 +316,17 @@ sea {
     bottom: 0;
     left: 0;
 }
-/* sea::before {
+sea::before {
     content: '';
-    width: 70%;
+    width: 70vw;
     display: block;
     background-color: var(--color-sea);
     height: var(--sea-height);
     border-top: #759fd0 6px solid;
     position: absolute;
-    bottom: 0;
-    left: 30%;
-} */
+    bottom: -6px;
+    left: 30vw;
+}
 #seaInfo {
     color: #2c4155;
 }
