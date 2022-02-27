@@ -12,11 +12,17 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-C7BLVVEMK7"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
+        const local = /192|127|localhost/;
+        const hostname = new URL(window.location).hostname.toString();
+        if (!local.test(hostname)) {
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
 
-        gtag('config', 'G-C7BLVVEMK7');
+            gtag('config', 'G-C7BLVVEMK7');
+        } else {
+            console.info('Google Analytics Disabled');
+        }
     </script>
     <script src="script.js"></script>
 </head>
