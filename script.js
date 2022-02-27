@@ -5,6 +5,17 @@ params.forEach((value, param) => {
   store.setItem(param, value);
 });
 
+const standards = {
+  pressure: {
+    inHg: 29.92,
+    hPa: 1013,
+  },
+  temp: {
+    C: 15,
+    F: 59,
+  },
+};
+
 const units = {
   altitude: { default: 'ft', Feet: 'ft', Meters: 'm' },
   pressure: { default: 'inHg', inHg: 'inHg', hPa: 'hPa' },
@@ -18,30 +29,40 @@ const fieldTypes = {
 };
 
 let fieldDefaults = {
-  fieldElev: {
+  elevation: {
     type: fieldTypes.altitude,
     ft: 790,
     m: 240.79,
   },
   pressure: {
     type: fieldTypes.pressure,
-    inHg: 29.92,
-    hPa: 1013,
+    inHg: standards.pressure.inHg,
+    hPa: standards.pressure.hPa,
   },
   surfaceTemp: {
     type: fieldTypes.temp,
     C: 13.42,
-    F: 59,
+    F: 56.16,
   },
-  plannedAlt: {
+  dewPoint: {
+    type: fieldTypes.temp,
+    C: 13.42,
+    F: 56.16,
+  },
+  trueAlt: {
+    type: fieldTypes.altitude,
+    ft: 3500,
+    m: 1066.8,
+  },
+  indicatedAlt: {
     type: fieldTypes.altitude,
     ft: 3500,
     m: 1066.8,
   },
   kollsman: {
     type: fieldTypes.pressure,
-    inHg: 29.92,
-    hPa: 1013,
+    inHg: standards.pressure.inHg,
+    hPa: standards.pressure.hPa,
   },
   oat: {
     type: fieldTypes.temp,
@@ -63,12 +84,26 @@ let settings = {
     store.getItem('tempUnit') !== null
       ? store.getItem('tempUnit')
       : units.temp.default,
+  flightLevelStart:
+    store.getItem('flightLevelStart') !== null
+      ? store.getItem('flightLevelStart')
+      : 18,
   debug:
     store.getItem('debug') !== null ? Boolean(store.getItem('debug')) : false,
+  debugLevel: 1,
   reductionFactor:
     store.getItem('reductionFactor') !== null
       ? store.getItem('reductionFactor')
       : 10,
+};
+
+let state = {
+  lastChangedAlt:
+    store.getItem('lastChangedAlt') !== null
+      ? store.getItem('lastChangedAlt')
+      : 'indicatedAlt',
+  comingFromFlightLevels: false,
+  lastKollsmanSetting: null,
 };
 
 const ISA = (alt) => 15 - (alt / 1000) * 2;
@@ -78,10 +113,19 @@ const TEC = (absoluteAlt, alt, oat) =>
 const pressureCorrection = (baro) => {
   switch (settings.pressureUnit) {
     case units.pressure.hPa:
-      return (baro - 1013) * 30;
+      return (baro - standards.pressure.hPa) * 30;
 
     default:
-      return (29.92 - baro) * 1000; // inHg
+      return (standards.pressure.inHg - baro) * 1000; // inHg
+  }
+};
+const kollsmanCorrection = (kollsman, baro) => {
+  switch (settings.pressureUnit) {
+    case units.pressure.hPa:
+      return (kollsman - baro) * 30;
+
+    default:
+      return (baro - kollsman) * 1000; // inHg
   }
 };
 const pressureAlt = (alt, presCorr) => alt + presCorr;
@@ -89,69 +133,137 @@ const densityAlt = (presAlt, oat, alt) => presAlt + 120 * (oat - ISA(alt));
 const absoluteAlt = (trueAlt, fieldElev) => trueAlt - fieldElev;
 const trueAlt = (indicatedAlt, tec) => indicatedAlt + tec;
 const indicatedAlt = (alt, presCorr) => alt - presCorr;
+const freezingLevel = (temp, dewPt, elevation) =>
+  ((temp - dewPt) / 2.5) * 1000 + elevation;
 
 // --- Environment ---
 
-const updateEnv = () => {
-  dbug('updating environment');
+const runCalculations = (fields) => {
+  let calcs = { ...fields };
 
-  let fields = {
-    fieldElev: Number(document.getElementById('fieldElev').value),
-    pressure: Number(document.getElementById('pressure').value),
-    surfaceTemp: Number(document.getElementById('surfaceTemp').value),
-    plannedAlt: Number(document.getElementById('plannedAlt').value),
-    kollsman: Number(document.getElementById('kollsman').value),
-    oat: Number(document.getElementById('oat').value),
-  };
-  dbug('fields', fields);
-
-  updateState(fields);
-
-  let calcs = {};
   calcs.presCorr = pressureCorrection(fields.pressure);
-  calcs.presAlt = pressureAlt(
-    fields.fieldElev,
-    pressureCorrection(fields.pressure)
-  );
-  calcs.isa = ISA(fields.plannedAlt);
-  calcs.surfaceIsa = ISA(fields.fieldElev);
-  calcs.isaDev = ISADeviation(fields.plannedAlt, fields.oat);
-  calcs.surfaceIsaDev = ISADeviation(fields.fieldElev, fields.surfaceTemp);
+  calcs.presAlt = pressureAlt(fields.elevation, calcs.presCorr);
+  console.log(calcs.presAlt);
   calcs.densAlt = densityAlt(
     calcs.presAlt,
     fields.surfaceTemp,
-    fields.fieldElev
+    fields.elevation
   );
-  calcs.indicatedAlt = indicatedAlt(
-    pressureAlt(pressureCorrection(fields.pressure), fields.plannedAlt),
-    pressureCorrection(fields.kollsman)
-  );
-  calcs.absoluteAlt = absoluteAlt(calcs.indicatedAlt, fields.fieldElev);
-  calcs.tec = TEC(calcs.absoluteAlt, fields.plannedAlt, fields.oat);
-  calcs.trueAlt = trueAlt(calcs.indicatedAlt, calcs.tec);
 
-  dbug('calcs', calcs);
+  calcs.surfaceIsa = ISA(fields.elevation);
+  calcs.surfaceIsaDev = ISADeviation(fields.elevation, fields.surfaceTemp);
+
+  calcs.freezingLevel = freezingLevel(
+    fields.surfaceTemp,
+    fields.dewPoint,
+    fields.elevation
+  );
+
+  const indicatedInput = document.getElementById('indicatedAlt');
+  const trueInput = document.getElementById('trueAlt');
+  if (state.lastChangedAlt === 'trueAlt') {
+    // We are given True; we need to calculate Indicated
+    indicatedInput.classList.add('calculated');
+    trueInput.classList.remove('calculated');
+
+    calcs.absoluteAlt = absoluteAlt(fields.trueAlt, fields.elevation);
+    calcs.tec = TEC(calcs.absoluteAlt, fields.trueAlt, fields.oat);
+
+    calcs.indicatedAlt = fields.trueAlt - calcs.tec;
+    calcs.indicatedAlt = indicatedAlt(
+      calcs.indicatedAlt,
+      pressureCorrection(fields.kollsman)
+    );
+    document.getElementById('indicatedAlt').value = round2(calcs.indicatedAlt);
+    updateState({ indicatedAlt: calcs.indicatedAlt });
+
+    calcs.presAltFlight = fields.indicatedAlt - calcs.presCorr;
+
+    calcs.isa = ISA(fields.trueAlt);
+    calcs.isaDev = ISADeviation(fields.trueAlt, fields.oat);
+  } else {
+    // We are given Indicated; we need to calculate True
+    trueInput.classList.add('calculated');
+    indicatedInput.classList.remove('calculated');
+
+    calcs.indicatedAlt = indicatedAlt(
+      fields.indicatedAlt,
+      pressureCorrection(fields.kollsman)
+    ); // fields.indicatedAlt + pressureCorrection(fields.kollsman);
+
+    console.log(
+      indicatedAlt(fields.indicatedAlt, pressureCorrection(fields.kollsman))
+    );
+
+    calcs.absoluteAlt = absoluteAlt(fields.indicatedAlt, fields.elevation);
+
+    calcs.presAltFlight = fields.indicatedAlt - calcs.presCorr;
+    calcs.tec = TEC(calcs.absoluteAlt, calcs.presAltFlight, fields.oat);
+    // calcs.tec = TEC(calcs.absoluteAlt, calcs.presAlt, fields.oat);
+    // calcs.tec = TEC(calcs.absoluteAlt, fields.indicatedAlt, fields.oat);
+
+    calcs.trueAlt = trueAlt(fields.indicatedAlt, calcs.tec);
+    document.getElementById('trueAlt').value = round2(calcs.trueAlt);
+    updateState({ trueAlt: calcs.trueAlt });
+
+    calcs.isa = ISA(fields.indicatedAlt);
+    calcs.isaDev = ISADeviation(fields.indicatedAlt, fields.oat);
+  }
+
+  dbug(2, 'calcs', calcs);
+  return calcs;
+};
+
+const getFieldValues = () => {
+  let fields = {
+    elevation: Number(document.getElementById('elevation').value),
+    pressure: Number(document.getElementById('pressure').value),
+    surfaceTemp: Number(document.getElementById('surfaceTemp').value),
+    dewPoint: Number(document.getElementById('dewPoint').value),
+    trueAlt: Number(document.getElementById('trueAlt').value),
+    indicatedAlt: Number(document.getElementById('indicatedAlt').value),
+    kollsman: Number(document.getElementById('kollsman').value),
+    oat: Number(document.getElementById('oat').value),
+  };
+
+  dbug(2, 'fields', fields);
+  updateState(fields);
+  return fields;
+};
+
+const updateEnv = (values) => {
+  dbug(1, 'updating environment');
 
   const infoList = [
-    `True (MSL): ${round2(calcs.trueAlt)}${settings.altitudeUnit} (TEC ${round2(
-      calcs.tec
-    )}${settings.altitudeUnit})`,
-    `Absolute (AGL): ${round2(calcs.absoluteAlt)}${settings.altitudeUnit}`,
-    `Surface ISA: ${round2(calcs.surfaceIsa)}&deg;${settings.tempUnit} (ISA${
-      calcs.surfaceIsaDev >= 0
-        ? '+' + round2(calcs.surfaceIsaDev)
-        : round2(calcs.surfaceIsaDev)
-    }&deg;${settings.tempUnit})`,
-    `Indicated: ${round2(calcs.indicatedAlt)}${settings.altitudeUnit}`,
-    `In Flight ISA: ${round2(calcs.isa)}&deg;${settings.tempUnit} (ISA${
-      calcs.isaDev >= 0 ? '+' + round2(calcs.isaDev) : round2(calcs.isaDev)
-    }&deg;${settings.tempUnit})`,
-    `Pressure: ${round2(calcs.presAlt)}${settings.altitudeUnit} (Corr. ${round2(
-      calcs.presCorr
-    )}${settings.altitudeUnit})`,
-    `Density: ${round2(calcs.densAlt)}${settings.altitudeUnit}`,
+    `Temp. Error: ${round2(values.tec)}${settings.altitudeUnit}`,
+    `Pressure Correction: ${round2(values.presCorr)}${settings.altitudeUnit}`,
+    `ISA in Flight: ${round2(values.isa)}&deg;${settings.tempUnit}`,
+    `ISA Dev. in Flight: ISA${
+      values.isaDev >= 0 ? '+' + round2(values.isaDev) : round2(values.isaDev)
+    }&deg;${settings.tempUnit}`,
+    `Kolls. Adjusted Ind.: ${round2(values.indicatedAlt)}${
+      settings.altitudeUnit
+    }`,
+    `Pressure Alt. in Flight: ${round2(values.presAltFlight)}${
+      settings.altitudeUnit
+    }`,
+    `Absolute (AGL): ${round2(values.absoluteAlt)}${settings.altitudeUnit}`,
+    `Pressure Alt. at Surface: ${round2(values.presAlt)}${
+      settings.altitudeUnit
+    }`,
+    `Density Alt. at Surface: ${round2(values.densAlt)}${
+      settings.altitudeUnit
+    }`,
+    `ISA at Surface: ${round2(values.surfaceIsa)}&deg;${settings.tempUnit}`,
+    `ISA Dev. at Surface: ISA${
+      values.surfaceIsaDev >= 0
+        ? '+' + round2(values.surfaceIsaDev)
+        : round2(values.surfaceIsaDev)
+    }&deg;${settings.tempUnit}`,
+    `Freezing Level: ${round2(values.freezingLevel)}${settings.altitudeUnit}`,
   ];
-  dbug('infoList', infoList);
+
+  dbug(1, 'updating info panel');
 
   const info = document.getElementById('info');
   info.innerHTML = '';
@@ -161,23 +273,37 @@ const updateEnv = () => {
     info.append(infoDiv);
   });
 
+  dbug(1, 'updating ground level info');
+
   const ground = document.getElementById('groundInfo');
   ground.innerHTML = '';
-  ground.innerHTML = `Elev.&nbsp;${fields.fieldElev}${settings.altitudeUnit} - Temp.&nbsp;${fields.surfaceTemp}&deg;${settings.tempUnit} - Pressure&nbsp;${fields.pressure}${settings.pressureUnit}`;
+  ground.innerHTML = [
+    `Elev.&nbsp;${values.elevation}${settings.altitudeUnit}`,
+    `Temp.&nbsp;${values.surfaceTemp}&deg;${settings.tempUnit}`,
+    `Dew&nbsp;Pt.&nbsp;${values.dewPoint}&deg;${settings.tempUnit}`,
+  ].join(' - ');
+
+  const sea = document.getElementById('seaInfo');
+  sea.innerHTML = '';
+  sea.innerHTML = [`Pressure ${values.pressure}${settings.pressureUnit}`].join(
+    ' - '
+  );
 
   const properties = {
-    '--ground': fields.fieldElev / settings.reductionFactor + 'px',
-    '--planned': fields.plannedAlt / settings.reductionFactor + 'px',
-    '--indicated': calcs.indicatedAlt / settings.reductionFactor + 'px',
-    '--datum': calcs.presCorr / settings.reductionFactor + 'px',
-    '--pressure': calcs.presAlt / settings.reductionFactor + 'px',
-    '--density': calcs.densAlt / settings.reductionFactor + 'px',
-    '--true': calcs.trueAlt / settings.reductionFactor + 'px',
-    '--absolute': calcs.absoluteAlt / settings.reductionFactor + 'px',
+    '--elevation': values.elevation / settings.reductionFactor + 'px',
+    '--planned': values.trueAlt / settings.reductionFactor + 'px',
+    '--indicated': values.indicatedAlt / settings.reductionFactor + 'px',
+    '--datum': values.presCorr / settings.reductionFactor + 'px',
+    '--pressure': values.presAlt / settings.reductionFactor + 'px',
+    '--density': values.densAlt / settings.reductionFactor + 'px',
+    '--true': values.trueAlt / settings.reductionFactor + 'px',
+    '--absolute': values.absoluteAlt / settings.reductionFactor + 'px',
     '--feels':
-      (fields.fieldElev - calcs.densAlt) / settings.reductionFactor + 'px',
+      (values.elevation - values.densAlt) / settings.reductionFactor + 'px',
+    '--freezing': values.freezingLevel / settings.reductionFactor + 'px',
   };
-  dbug('properties', properties);
+
+  dbug(1, 'setting properties');
 
   const root = document.documentElement;
   for (const [property, value] of Object.entries(properties)) {
@@ -195,7 +321,7 @@ const resetEnv = () => {
     }
   }
 
-  updateEnv();
+  updateEnv(runCalculations(getFieldValues()));
   scrollToSea();
 };
 
@@ -234,7 +360,9 @@ const scrollToGround = () => {
   window.scrollTo({
     top: getScrollLocation(
       parseInt(
-        getComputedStyle(document.documentElement).getPropertyValue('--ground')
+        getComputedStyle(document.documentElement).getPropertyValue(
+          '--elevation'
+        )
       )
     ),
     behavior: 'smooth',
@@ -268,16 +396,23 @@ const initSettingsPanel = () => {
   let settingsPressureUnit = document.getElementById('settingPressureUnit');
   settingsPressureUnit.value = settings.pressureUnit;
 
+  let settingsFlightLevelStart = document.getElementById(
+    'settingFlightLevelStart'
+  );
+  settingsFlightLevelStart.value = settings.flightLevelStart;
+
   let settingsDebug = document.getElementById('settingDebug');
   settingsDebug.checked = settings.debug;
 };
 
 const updateState = (fields) => {
+  dbug(1, 'updating state');
   for (const [id, value] of Object.entries(fields)) {
     if (typeof fieldDefaults[id] == 'object') {
       let fieldDefault = fieldDefaults[id];
       if (value != fieldDefault[settings[`${fieldDefault.type}Unit`]]) {
         dbug(
+          3,
           'storing',
           id,
           value,
@@ -285,15 +420,15 @@ const updateState = (fields) => {
           fieldDefault[settings[`${fieldDefault.type}Unit`]]
         );
         store.setItem(id, value);
-      } else {
-        dbug('removing', id, value);
+      } else if (store.getItem(id) !== null) {
+        dbug(3, 'removing', id, value);
         store.removeItem(id);
       }
     } else if (value != fieldDefaults[id]) {
-      dbug('storing', id, value, 'did not match', fieldDefaults[id]);
+      dbug(3, 'storing', id, value, 'did not match', fieldDefaults[id]);
       store.setItem(id, value);
-    } else {
-      dbug('deleting param', id, value);
+    } else if (store.getItem(id) !== null) {
+      dbug(3, 'deleting param', id, value);
       store.removeItem(id);
     }
   }
@@ -303,18 +438,22 @@ const updateState = (fields) => {
 
 // --- Ruler ---
 
-const createRuler = () => {
+const createRulers = () => {
+  dbug(1, 'generating rulers');
   const rulers = document.getElementsByTagName('ruler');
   for (let ruler of rulers) {
-    let ticks = parseInt(ruler.getAttribute('ticks'));
-    let alt = (ticks.valueOf() / 2) * 1000;
-    for (var i = 0; i < ticks; i++) {
+    let tickCount = parseInt(ruler.getAttribute('ticks'));
+    let alt = (tickCount.valueOf() / 2) * 1000;
+    for (var i = 0; i < tickCount; i++) {
       let tick = document.createElement('tick');
       tick.style.marginBottom = 1000 / 2 / settings.reductionFactor - 2 + 'px';
 
       if (i % 2 == 0) {
         let span = document.createElement('span');
-        span.innerText = alt >= 18000 ? 'FL' + alt / 1000 + '0' : alt;
+        span.innerText =
+          alt >= settings.flightLevelStart * 1000
+            ? 'FL' + ('000' + alt / 1000).substr(-3)
+            : alt;
         tick.append(span);
         alt = alt - 1000;
       }
@@ -324,7 +463,28 @@ const createRuler = () => {
   }
 };
 
+const updateRulerLabels = () => {
+  dbug(1, 'updating ruler labels');
+  const rulers = document.getElementsByTagName('ruler');
+  for (let ruler of rulers) {
+    let tickCount = parseInt(ruler.getAttribute('ticks'));
+    let alt = (tickCount.valueOf() / 2) * 1000;
+    const ticks = ruler.getElementsByTagName('tick');
+    for (let [i, tick] of Object.entries(ticks)) {
+      if (i % 2 == 0) {
+        let span = tick.getElementsByTagName('span')[0];
+        span.innerText =
+          alt >= settings.flightLevelStart * 1000
+            ? 'FL' + ('000' + alt / 1000).substr(-3)
+            : alt;
+        alt = alt - 1000;
+      }
+    }
+  }
+};
+
 const updateRulerScale = () => {
+  dbug(1, 'updating ruler scale');
   const ticks = document.querySelectorAll('tick');
   for (let tick of ticks) {
     tick.style.marginBottom = 1000 / 2 / settings.reductionFactor - 2 + 'px';
@@ -353,7 +513,7 @@ const toggleOut = (id, btn, outMsg, inMsg) => {
 const setUnit = (unit, value = null) => {
   let newVal = value ? value : units[unit].default;
   settings[`${unit}Unit`] = newVal;
-  dbug(`${unit} unit set to`, newVal);
+  dbug(1, `${unit} unit set to`, newVal);
 
   let unitLabels = document.querySelectorAll(`.${unit}UnitLabel`);
   unitLabels.forEach((label) => (label.innerText = newVal));
@@ -361,14 +521,38 @@ const setUnit = (unit, value = null) => {
   // set placeholders to default value according to unit
 
   if (newVal == units[unit].default) {
+    dbug(3, `deleting param ${unit}Unit`, newVal);
     store.removeItem(`${unit}Unit`);
   } else {
+    dbug(
+      3,
+      `storing ${unit}Unit`,
+      newVal,
+      'did not match',
+      units[unit].default
+    );
     store.setItem(`${unit}Unit`, newVal);
   }
 
   resetEnv();
 
   document.getElementById('settingLink').value = generateShareLink();
+};
+
+const setFlightLevelStart = (flightLevel) => {
+  settings.flightLevelStart = flightLevel;
+  dbug(1, `flight level start set to`, flightLevel);
+
+  flightLevelDefault = 18;
+  if (flightLevel == 18) {
+    dbug(3, 'deleting param flightLevelStart', flightLevel);
+    store.removeItem('flightLevelStart');
+  } else {
+    dbug(3, 'storing flightLevelStart', flightLevel, 'did not match');
+    store.setItem('flightLevelStart', flightLevel);
+  }
+
+  updateRulerLabels();
 };
 
 const generateShareLink = () => {
@@ -403,12 +587,12 @@ const setReductionFactor = (factor = 10) => {
   settings.reductionFactor = factor;
   // const environment = document.getElementById('environment');
   // environment.style.height.value = (10 - factor) * 1000 + 7000;
-  updateEnv();
+  updateEnv(runCalculations(getFieldValues()));
   updateRulerScale();
 };
 
-const dbug = (...args) => {
-  if (settings.debug) {
+const dbug = (level, ...args) => {
+  if (settings.debug && settings.debugLevel >= level) {
     console.log(...args);
   }
 };
@@ -418,8 +602,39 @@ const dbug = (...args) => {
 window.addEventListener('DOMContentLoaded', () => {
   // update environment on field value change
   for (const [id, value] of Object.entries(fieldDefaults)) {
-    document.getElementById(id).addEventListener('change', () => {
-      updateEnv();
+    document.getElementById(id).addEventListener('change', (event) => {
+      let { id, value } = event.target;
+      let fields = getFieldValues();
+
+      let kollsman = document.getElementById('kollsman');
+      if (id === 'trueAlt' || id === 'indicatedAlt') {
+        state.lastChangedAlt = id;
+        store.setItem('lastChangedAlt', id);
+
+        // set kollsman window to standard when at or above flight levels
+        if (value >= settings.flightLevelStart * 1000) {
+          if (
+            value == settings.flightLevelStart * 1000 &&
+            !state.comingFromFlightLevels
+          ) {
+            state.lastKollsmanSetting = fields.kollsman;
+          }
+          kollsman.value = standards.pressure[settings.pressureUnit];
+          state.comingFromFlightLevels = true;
+        } else {
+          if (state.comingFromFlightLevels) {
+            kollsman.value = state.lastKollsmanSetting || fields.pressure;
+            state.comingFromFlightLevels = false;
+            state.lastKollsmanSetting = null;
+          }
+        }
+      }
+
+      // if (id === 'pressure') {
+      //   kollsman.value = fields.pressure;
+      // }
+
+      updateEnv(runCalculations(getFieldValues()));
     });
   }
 
@@ -444,6 +659,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
   initFields();
   initSettingsPanel();
-  createRuler();
-  updateEnv();
+  createRulers();
+  updateEnv(runCalculations(getFieldValues()));
 });
