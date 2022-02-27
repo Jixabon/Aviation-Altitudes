@@ -515,8 +515,15 @@ const setUnit = (unit, value = null) => {
   settings[`${unit}Unit`] = newVal;
   dbug(1, `${unit} unit set to`, newVal);
 
-  let unitLabels = document.querySelectorAll(`.${unit}UnitLabel`);
+  const unitLabels = document.querySelectorAll(`.${unit}UnitLabel`);
   unitLabels.forEach((label) => (label.innerText = newVal));
+
+  if (unit === 'pressure') {
+    const standardPressureValue = document.getElementById(
+      'standardPressureValue'
+    );
+    standardPressureValue.innerText = standards.pressure[newVal];
+  }
 
   // set placeholders to default value according to unit
 
@@ -651,6 +658,11 @@ window.addEventListener('DOMContentLoaded', () => {
   pressureUnitLocs.forEach((loc) => {
     loc.innerText = settings.pressureUnit;
   });
+
+  const standardPressureValue = document.getElementById(
+    'standardPressureValue'
+  );
+  standardPressureValue.innerText = standards.pressure[settings.pressureUnit];
 
   const tempUnitLocs = document.querySelectorAll('.tempUnitLabel');
   tempUnitLocs.forEach((loc) => {
