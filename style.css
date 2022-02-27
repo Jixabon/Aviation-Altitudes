@@ -48,6 +48,7 @@ html {
 body {
     font-family: 'Cabin', sans-serif;
     font-weight: 600;
+    /* font-size: 16.4px; */
 }
 
 a {
@@ -61,7 +62,7 @@ ui {
     width: 100%;
     position: fixed;
     z-index: 100;
-    top: -298px;
+    top: -292px;
     transition: top .5s ease-in-out;
 }
 ui.out {
@@ -78,7 +79,7 @@ ui.out {
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
-    gap: 3px;
+    gap: 5px;
 }
 .input-inline-wrapper {
     flex-direction: row;
@@ -88,12 +89,12 @@ ui.out {
 }
 input, select {
     width: 100%;
-    margin: 0;
 }
 input, select, button, .btn {
     font-family: 'Cabin', sans-serif;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 16.4px;
+    margin: 0;
     padding: 5px 10px;
     border: none;
     border-radius: 100px;
