@@ -227,44 +227,49 @@ const getFieldValues = () => {
 const updateEnv = (values) => {
   dbug(1, 'updating environment');
 
-  const infoList = [
-    `Temp. Error: ${round2(values.tec)}${settings.altitudeUnit}`,
-    `Pressure Correction: ${round2(values.presCorr)}${settings.altitudeUnit}`,
-    `ISA in Flight: ${round2(values.isa)}&deg;${settings.tempUnit}`,
-    `ISA Dev. in Flight: ISA${
+  const infoList = {
+    'Temp. Error': `${round2(values.tec)}${settings.altitudeUnit}`,
+    'Pressure Correction': `${round2(values.presCorr)}${settings.altitudeUnit}`,
+    'ISA in Flight': `${round2(values.isa)}&deg;${settings.tempUnit}`,
+    'ISA Dev. in Flight': `ISA${
       values.isaDev >= 0 ? '+' + round2(values.isaDev) : round2(values.isaDev)
     }&deg;${settings.tempUnit}`,
-    `Kolls. Adjusted Ind.: ${round2(values.indicatedAlt)}${
+    'Kolls. Adjusted Ind.': `${round2(values.indicatedAlt)}${
       settings.altitudeUnit
     }`,
-    `Pressure Alt. in Flight: ${round2(values.presAltFlight)}${
+    'Pressure Alt. in Flight': `${round2(values.presAltFlight)}${
       settings.altitudeUnit
     }`,
-    `Absolute (AGL): ${round2(values.absoluteAlt)}${settings.altitudeUnit}`,
-    `Pressure Alt. at Surface: ${round2(values.presAlt)}${
+    'Absolute (AGL)': `${round2(values.absoluteAlt)}${settings.altitudeUnit}`,
+    'Pressure Alt. at Surface': `${round2(values.presAlt)}${
       settings.altitudeUnit
     }`,
-    `Density Alt. at Surface: ${round2(values.densAlt)}${
+    'Density Alt. at Surface': `${round2(values.densAlt)}${
       settings.altitudeUnit
     }`,
-    `ISA at Surface: ${round2(values.surfaceIsa)}&deg;${settings.tempUnit}`,
-    `ISA Dev. at Surface: ISA${
+    'ISA at Surface': `${round2(values.surfaceIsa)}&deg;${settings.tempUnit}`,
+    'ISA Dev. at Surface': `ISA${
       values.surfaceIsaDev >= 0
         ? '+' + round2(values.surfaceIsaDev)
         : round2(values.surfaceIsaDev)
     }&deg;${settings.tempUnit}`,
-    `Freezing Level: ${round2(values.freezingLevel)}${settings.altitudeUnit}`,
-  ];
+    'Freezing Level': `${round2(values.freezingLevel)}${settings.altitudeUnit}`,
+  };
 
   dbug(1, 'updating info panel');
 
   const info = document.getElementById('info');
   info.innerHTML = '';
-  infoList.forEach((infoItem) => {
-    const infoDiv = document.createElement('div');
-    infoDiv.innerHTML = infoItem;
-    info.append(infoDiv);
-  });
+  for (let [label, value] of Object.entries(infoList)) {
+    const itemDiv = document.createElement('div');
+    const labelDiv = document.createElement('div');
+    labelDiv.innerHTML = label;
+    const valueDiv = document.createElement('div');
+    valueDiv.innerHTML = value;
+    itemDiv.append(labelDiv);
+    itemDiv.append(valueDiv);
+    info.append(itemDiv);
+  }
 
   dbug(1, 'updating ground level info');
 
