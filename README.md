@@ -69,7 +69,7 @@ Adjust where the flight levels start. This is also determine if the Kollsman opt
 
 ### Share/Bookmark
 
-A link to share your settings configuration.
+A link to share your configuration.
 
 ### Developer
 
