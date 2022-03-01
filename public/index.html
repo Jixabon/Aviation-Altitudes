@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0">
+    <meta name="description" content="Teach or learn about different altitudes in aviation. See live how temperature and pressure effect aircraft readings and freezing levels! Try it out TODAY!">
+    <title>Aviation Altitudes</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cabin:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C7BLVVEMK7"></script>
+    <script>
+        const local = /192|127|localhost|netlify.live/;
+        const hostname = new URL(window.location).hostname.toString();
+        if (!local.test(hostname)) {
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-C7BLVVEMK7');
+        } else {
+            console.info('Google Analytics Disabled');
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                console.log('Registering Service Worker');
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker is registered', registration);
+                    })
+                    .catch(err => {
+                        console.error('Registration failed:', err);
+                    });
+            });
+        }
+    </script>
+    <script src="/js/script.js"></script>
+</head>
+<body>
+    <ui id="ui">
+        <inputs id="inputs">
+            <div class="input-wrapper">
+                <label>Elevation <span class="altitudeUnitLabel"></span></label>
+                <input type="number" id="elevation" step="10" placeholder="790"/>
+            </div>
+            <div class="input-wrapper">
+                <label>Pressure <span class="pressureUnitLabel"></span></label>
+                <input type="number" id="pressure" step=".01" placeholder="29.92" />
+            </div>
+            <div class="input-wrapper">
+                <label>Surface OAT&deg;<span class="tempUnitLabel"></span></label>
+                <input type="number" id="surfaceTemp" step=".1" placeholder="15" />
+            </div>
+            <div class="input-wrapper">
+                <label>Dew Pt. &deg;<span class="tempUnitLabel"></span></label>
+                <input type="number" id="dewPoint" placeholder="10" />
+            </div>
+            <div class="input-wrapper">
+                <label>Indicated Alt. <span class="altitudeUnitLabel"></span></label>
+                <input type="number" id="indicatedAlt" step="10" placeholder="3500" />
+            </div>
+            <div class="input-wrapper">
+                <label>True Alt. <span class="altitudeUnitLabel"></span></label>
+                <input type="number" id="trueAlt" step="10" placeholder="3500" />
+            </div>
+            <div class="input-wrapper">
+                <label>Kollsman <span class="pressureUnitLabel"></span></label>
+                <input type="number" id="kollsman" step=".01" placeholder="29.92" />
+            </div>
+            <div class="input-wrapper">
+                <label>In Flight OAT&deg;<span class="tempUnitLabel"></span></label>
+                <input type="number" id="oat" step=".1" placeholder="15" />
+            </div>
+            <div id="inputButtons">
+                <div id="resetRow">
+                    <button id="resetBtn" onClick="resetEnv();">Reset</button>
+                </div>
+                <div id="controlRow">
+                    <button id="settingsBtn" onClick="toggleOut('settingsWrapper');">Settings</button>
+                    <button id="infoBtn" onClick="toggleOut('info', this, 'Hide Data', 'Show Data');">Show Data</button>
+                    <button id="fieldsBtn" onClick="toggleOut('ui', this, 'Hide Fields', 'Show Fields');">Show Fields</button>
+                </div>
+            </div>
+        </inputs>
+        <info id="info">
+        </info>
+        <div id="settingsWrapper">
+            <settings>
+                <h1>Settings</h1>
+                <div class="input-wrapper">
+                    <label>Pressure Unit</label>
+                    <select id="settingPressureUnit" onchange="setUnit('pressure', this.value);">
+                        <option value="inHg">inHg</option>
+                        <option value="hPa">hPa</option>
+                    </select>
+                </div>
+                <div class="input-wrapper">
+                    <label>Flight Levels Start (thousands)</label>
+                    <input type="number" id="settingFlightLevelStart" onchange="setFlightLevelStart(this.value);" placeholder="18" />
+                </div>
+                <div class="input-wrapper">
+                    <label>Share/Bookmark</label>
+                    <input type="text" id="settingLink" placeholder="Change some settings!" />
+                </div>
+                <div class="input-wrapper">
+                    <div class="input-inline-wrapper">
+                        <span>Developer</span>
+                        <label class="switch">
+                            <input type="checkbox" id="settingDebug" onchange="setDebug(this.checked);">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <span class="help-text">Enabling this setting could cause things to not display properly.</span>
+                </div>
+                <!-- <div class="input-wrapper" debug>
+                    <label>Reduction Factor</label>
+                    <input type="number" id="settingReductionFactor" placeholder="10"/>
+                </div> -->
+                <div id="settingsButtons">
+                    <a href="https://github.com/Jixabon/Aviation-Altitudes" class="btn" target="_blank">Help</a>
+                    <button onClick="toggleOut('settingsWrapper');">Close</button>
+                </div>
+            </settings>
+        </div>
+        <views id="views">
+            <div>
+                <button onClick="scrollToPlane();">Go to Plane</button>
+                <button onClick="scrollToGround();">Go to Ground</button>
+                <button onClick="scrollToSea();">Go to Sea</button>
+            </div>
+            <p>
+                <a href="https://github.com/Jixabon/Aviation-Altitudes" target="_blank">GitHub/Help</a> &middot;
+                <a href="https://policies.google.com/privacy" target="_blank">Google Analytics</a> &middot;
+                <a href="https://ko-fi.com/jixabon" target="_blank">Buy me a coffee</a>
+            </p>
+            <p class="smallprint">
+                Copyright 2022 - This tool is for learning purposes only and should not be used in flight planning.
+            </p>
+        </views>
+    </ui>
+    <environment id="environment">
+        <sea>
+            <span id="seaInfo"></span>
+        </sea>
+        <ground>
+            <span id="groundInfo"></span>
+        </ground>
+        <below></below>
+        <altitudes>
+            <seaLevel>
+                <span>Sea Level</span>
+                <ruler class="hide-zero" ticks="140" negative-ticks="22"></ruler>
+            </seaLevel>
+            <feels>
+                <span>Feels</span>
+                <ruler class="right" ticks="140" negative-ticks="20"></ruler>
+            </feels>
+            <freezingLevel>
+                <span>Freezing</span>
+            </freezingLevel>
+            <datum>
+                <span>Standard <span id="standardPressureValue"></span></span>
+            </datum>
+            <pressure>
+                <span>Pressure</span>
+            </pressure>
+            <density>
+                <span>Density</span>
+            </density>
+            <true>
+                <span>True</span>
+                <aircraft id="aircraft"></aircraft>
+            </true>
+            <indicated>
+                <span>Indicated</span>
+            </indicated>
+        </altitudes>
+    </environment>
+</body>
+</html>
