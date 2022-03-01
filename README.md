@@ -45,6 +45,10 @@ There are two rulers on the interface on the left and right edges. The ruler on 
 
 At the bottom of the screen are the Go To buttons to quickly bring into view either the Plane, Ground or Sea.
 
+### As an App
+
+On most devices you can "Add to home screen" or "install" this webpage for offline and ease of use.
+
 ## Potential Features
 
 ### Airport Lookup
@@ -145,4 +149,4 @@ Be sure to press the reset button afterwards.
 
 ## Google Analytics
 
-Google Analytics is used to note the active user base of this project and is not used for any marketing or advertizing purposes, nor will any information be sold or released to the public. If you'd like to learn more, see Google Analytics' [Privacy Policy](https://policies.google.com/technologies/partner-sites).
+Google Analytics is used to note the active user base of this project and is not used for any marketing or advertizing purposes, nor will any information be sold or released to the public. If you'd like to learn more, see Google Analytics' [Privacy Policy](https://policies.google.com/privacy) and [Terms of Service](https://policies.google.com/terms).
