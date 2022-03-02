@@ -2,6 +2,16 @@ let store = window.localStorage;
 // load parameters into localStorage
 let params = new URLSearchParams(location.search);
 params.forEach((value, param) => {
+  if (param === 'airport') {
+    var oldAirport = store.getItem('airport');
+    var isDifferent = value !== (oldAirport !== null ? oldAirport : '');
+    if (isDifferent) {
+      store.removeItem('mostRecentMetar');
+      store.removeItem('mostRecentMetarTime');
+      store.removeItem('mostRecentMetarInserted');
+    }
+  }
+
   store.setItem(param, value);
 });
 
@@ -21,6 +31,15 @@ const units = {
   pressure: { default: 'inHg', inHg: 'inHg', hPa: 'hPa' },
   temp: { default: 'C', C: 'C', F: 'F' },
 };
+
+const metarFields = ['elevation', 'pressure', 'surfaceTemp', 'dewPoint'];
+
+const shareLinkExclude = [
+  'debug',
+  'mostRecentMetar',
+  'mostRecentMetarTime',
+  'mostRecentMetarInserted',
+];
 
 const fieldTypes = {
   altitude: 'altitude',
@@ -88,6 +107,7 @@ let settings = {
     store.getItem('flightLevelStart') !== null
       ? store.getItem('flightLevelStart')
       : 18,
+  airport: store.getItem('airport') !== null ? store.getItem('airport') : '',
   debug:
     store.getItem('debug') !== null ? Boolean(store.getItem('debug')) : false,
   debugLevel: 1,
@@ -400,6 +420,28 @@ const initFields = () => {
   }
 };
 
+const initLabels = () => {
+  const altitudeUnitLocs = document.querySelectorAll('.altitudeUnitLabel');
+  altitudeUnitLocs.forEach((loc) => {
+    loc.innerText = settings.altitudeUnit;
+  });
+
+  const pressureUnitLocs = document.querySelectorAll('.pressureUnitLabel');
+  pressureUnitLocs.forEach((loc) => {
+    loc.innerText = settings.pressureUnit;
+  });
+
+  const standardPressureValue = document.getElementById(
+    'standardPressureValue'
+  );
+  standardPressureValue.innerText = standards.pressure[settings.pressureUnit];
+
+  const tempUnitLocs = document.querySelectorAll('.tempUnitLabel');
+  tempUnitLocs.forEach((loc) => {
+    loc.innerText = settings.tempUnit;
+  });
+};
+
 const initSettingsPanel = () => {
   let settingsPressureUnit = document.getElementById('settingPressureUnit');
   settingsPressureUnit.value = settings.pressureUnit;
@@ -408,6 +450,9 @@ const initSettingsPanel = () => {
     'settingFlightLevelStart'
   );
   settingsFlightLevelStart.value = settings.flightLevelStart;
+
+  let settingsAirport = document.getElementById('settingAirport');
+  settingsAirport.value = settings.airport;
 
   let settingsDebug = document.getElementById('settingDebug');
   settingsDebug.checked = settings.debug;
@@ -526,7 +571,7 @@ const updateRulerScale = () => {
 
 // --- Helper Functions ---
 
-const round2 = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
+const round2 = (num) => Math.round((Number(num) + Number.EPSILON) * 100) / 100;
 
 const toggleOut = (id, btn, outMsg, inMsg) => {
   const elem = document.getElementById(id);
@@ -595,12 +640,335 @@ const setFlightLevelStart = (flightLevel) => {
   updateRulerLabels();
 };
 
+const setAirport = (value) => {
+  settings.airport = value;
+  var oldAirport = store.getItem('airport');
+  var isDifferent = value !== (oldAirport !== null ? oldAirport : '');
+  if (value == '') {
+    store.removeItem('airport');
+  } else {
+    store.setItem('airport', value);
+  }
+
+  updateSyncAirportButton(isDifferent);
+};
+
+const faClasses = [
+  'fa-spin',
+  'fa-arrows-rotate',
+  'fa-triangle-exclamation',
+  'fa-check',
+  'fa-stopwatch',
+  'fa-wifi',
+  'fa-arrow-up-from-bracket',
+];
+const syncAirportButtonStates = {
+  default: (button, icon) => {
+    button.disabled = false;
+    let reset = faClasses;
+    delete reset['fa-arrows-rotate'];
+    icon.classList.remove(...reset);
+    icon.classList.add('fa-arrows-rotate');
+  },
+  loading: (button, icon) => {
+    button.disabled = 'disabled';
+    let reset = faClasses;
+    delete reset['fa-spin'];
+    delete reset['fa-arrows-rotate'];
+    icon.classList.remove(...reset);
+    icon.classList.add('fa-spin', 'fa-arrows-rotate');
+  },
+  error: (button, icon) => {
+    button.disabled = 'disabled';
+    let reset = faClasses;
+    delete reset['fa-triangle-exclamation'];
+    icon.classList.remove(...reset);
+    icon.classList.add('fa-triangle-exclamation');
+  },
+  success: (button, icon) => {
+    button.disabled = 'disabled';
+    let reset = faClasses;
+    delete reset['fa-check'];
+    icon.classList.remove(...reset);
+    icon.classList.add('fa-check');
+  },
+  throttled: (button, icon) => {
+    button.disabled = 'disabled';
+    let reset = faClasses;
+    delete reset['fa-stopwatch'];
+    icon.classList.remove(...reset);
+    icon.classList.add('fa-stopwatch');
+  },
+  insert: (button, icon) => {
+    button.disabled = false;
+    let reset = faClasses;
+    delete reset['fa-arrow-up-from-bracket'];
+    icon.classList.remove(...reset);
+    icon.classList.add('fa-arrow-up-from-bracket');
+    button.onclick = insertRecentMetar;
+  },
+  offline: (button, icon) => {
+    button.disabled = 'disabled';
+    let reset = faClasses;
+    delete reset['fa-wifi'];
+    icon.classList.remove(...reset);
+    icon.classList.add('fa-wifi');
+  },
+};
+
+const setFlightCategory = (button, category) => {
+  switch (category) {
+    case 'VFR':
+      button.classList.add('vfr');
+      break;
+
+    case 'MVFR':
+      button.classList.add('mvfr');
+      break;
+
+    case 'IFR':
+      button.classList.add('ifr');
+      break;
+
+    case 'LIFR':
+      button.classList.add('lifr');
+      break;
+
+    default:
+      button.classList.remove('vfr', 'mvfr', 'ifr', 'lifr');
+  }
+};
+
+const updateSyncAirportButton = (forceUpdate) => {
+  dbug(1, `updating sync button${forceUpdate ? ': forced' : ''}`);
+  var existingButton = document.getElementById('syncAirportButton');
+
+  if (settings.airport != '' || forceUpdate) {
+    dbug(1, 'airport is set');
+    if (!existingButton || forceUpdate) {
+      if (forceUpdate) {
+        existingButton?.remove();
+        store.removeItem('mostRecentMetar');
+        store.removeItem('mostRecentMetarTime');
+        store.removeItem('mostRecentMetarInserted');
+
+        metarFields.forEach((id) =>
+          document.getElementById(id).classList.remove('calculated')
+        );
+      }
+      dbug(2, 'adding sync button');
+      const viewButtons = document.getElementById('resetRow');
+      existingButton = document.createElement('button');
+      existingButton.id = 'syncAirportButton';
+      existingButton.innerHTML = `<i class="fa-solid fa-arrows-rotate"></i>${settings.airport}`;
+      existingButton.onclick = syncAirport;
+      viewButtons.prepend(existingButton);
+    }
+
+    const icon = existingButton.querySelector('i');
+
+    var isMetarInserted = store.getItem('mostRecentMetarInserted');
+    if (isMetarInserted === 'false' && isMetarInserted !== null) {
+      dbug(1, 'metar is not inserted');
+
+      syncAirportButtonStates.insert(existingButton, icon);
+    } else if (isThrottled()) {
+      dbug(1, 'metar is throttled');
+
+      syncAirportButtonStates.throttled(existingButton, icon);
+
+      var milliseconds = getMillisecondsToNextMetar();
+      if (milliseconds) {
+        dbug(
+          1,
+          `sync button will be set to default in ${milliseconds / 1000} seconds`
+        );
+        timeoutToDefault = setTimeout(() => {
+          syncAirportButtonStates.default(syncButton, syncIcon);
+          clearTimeout(timeoutToDefault);
+        }, milliseconds);
+      }
+    }
+
+    var metarJson = store.getItem('mostRecentMetar');
+    if (metarJson !== 'null') {
+      var metar = JSON.parse(metarJson);
+      setFlightCategory(existingButton, metar?.flight_category);
+    }
+  } else {
+    existingButton?.remove();
+    store.removeItem('mostRecentMetar');
+    store.removeItem('mostRecentMetarTime');
+    store.removeItem('mostRecentMetarInserted');
+  }
+};
+
+const getEstNextMetarTime = () => {
+  const mostRecentMetarTime = store.getItem('mostRecentMetarTime');
+  if (mostRecentMetarTime) {
+    var metarTime = new Date(mostRecentMetarTime);
+
+    let newHours =
+      metarTime.getHours() + Math.ceil((metarTime.getMinutes() + 15) / 60);
+    if (newHours > 24) {
+      metarTime.setDate(metarTime.getDay() + 1);
+    }
+
+    metarTime.setHours(newHours);
+    metarTime.setMinutes(0, 0, 0);
+
+    return metarTime;
+  }
+
+  return null;
+};
+
+const getMillisecondsToNextMetar = () => {
+  var nextMetarTime = getEstNextMetarTime();
+  var milliseconds = new Date(nextMetarTime) - new Date();
+  // if more than 1 second out then return false
+  return milliseconds > 5000 ? milliseconds : false;
+};
+
+const isThrottled = () => {
+  var nextMetarTime = getEstNextMetarTime();
+  return nextMetarTime ? new Date() < nextMetarTime : false;
+};
+
+const insertMetar = (metar) => {
+  const elevation = document.getElementById('elevation');
+  elevation.value = round2(metar?.elevation_m * 3.281);
+  elevation.classList.add('calculated');
+
+  const pressure = document.getElementById('pressure');
+  pressure.value = round2(metar.altim_in_hg);
+  pressure.classList.add('calculated');
+
+  const surfaceTemp = document.getElementById('surfaceTemp');
+  surfaceTemp.value = round2(metar.temp_c);
+  surfaceTemp.classList.add('calculated');
+
+  const dewPoint = document.getElementById('dewPoint');
+  dewPoint.value = round2(metar.dewpoint_c);
+  dewPoint.classList.add('calculated');
+
+  // document.getElementById('kollsman').value = '';
+
+  store.setItem('mostRecentMetarInserted', true);
+};
+
+const insertRecentMetar = () => {
+  var metarJson = store.getItem('mostRecentMetar');
+  var metar = JSON.parse(metarJson);
+
+  insertMetar(metar);
+
+  updateSyncAirportButton();
+  updateEnv(runCalculations(getFieldValues()));
+};
+
+var timeoutToDefault = null;
+var timeoutToThrottled = null;
+const syncAirport = async () => {
+  dbug(1, 'syncing airport data');
+  const { protocol, host } = window.location;
+
+  const syncButton = document.getElementById('syncAirportButton');
+  const syncIcon = syncButton.querySelector('i');
+
+  syncAirportButtonStates.loading(syncButton, syncIcon);
+
+  if (window.navigator.onLine) {
+    dbug(1, 'online: fetching metar');
+    fetch(`${protocol}//${host}/.netlify/functions/metar/${settings.airport}`)
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          syncAirportButtonStates.error(syncButton, syncIcon);
+
+          dbug(1, 'sync button will be set to default in 3 seconds');
+          timeoutToDefault = setTimeout(() => {
+            syncAirportButtonStates.default(syncButton, syncIcon);
+            clearTimeout(timeoutToDefault);
+          }, 1000 * 3);
+
+          return [];
+        }
+      })
+      .then((json) => {
+        var metar = json[0];
+
+        if (metar) {
+          store.setItem('mostRecentMetarTime', metar.observation_time);
+          store.setItem('mostRecentMetar', JSON.stringify(metar));
+          syncAirportButtonStates.success(syncButton, syncIcon);
+
+          dbug(1, `sync button will be set to throttled in 3 seconds`);
+          timeoutToThrottled = setTimeout(() => {
+            syncAirportButtonStates.throttled(syncButton, syncIcon);
+            clearTimeout(timeoutToThrottled);
+
+            var milliseconds = getMillisecondsToNextMetar();
+            if (milliseconds) {
+              dbug(
+                1,
+                `sync button will be set to default in ${
+                  milliseconds / 1000
+                } seconds`
+              );
+              timeoutToDefault = setTimeout(() => {
+                syncAirportButtonStates.default(syncButton, syncIcon);
+                clearTimeout(timeoutToDefault);
+              }, milliseconds);
+            }
+          }, 1000 * 3);
+
+          setFlightCategory(syncButton, metar?.flight_category);
+          insertMetar(metar);
+
+          updateEnv(runCalculations(getFieldValues()));
+        } else {
+          syncAirportButtonStates.error(syncButton, syncIcon);
+
+          dbug(1, `sync button will be set to default in 3 seconds`);
+          timeoutToDefault = setTimeout(() => {
+            syncAirportButtonStates.default(syncButton, syncIcon);
+            clearTimeout(timeoutToDefault);
+          }, 1000 * 3);
+        }
+      })
+      .catch((e) => {
+        console.log(e.message);
+        syncAirportButtonStates.error(syncButton, syncIcon);
+
+        dbug(1, `sync button will be set to default in 3 seconds`);
+        timeoutToDefault = setTimeout(() => {
+          syncAirportButtonStates.default(syncButton, syncIcon);
+          clearTimeout(timeoutToDefault);
+        }, 1000 * 3);
+      });
+  } else {
+    dbug(1, 'offline: waiting a while to try again');
+
+    syncAirportButtonStates.offline(syncButton, syncIcon);
+
+    dbug(1, `sync button will be set to default in 30 seconds`);
+    timeoutToDefault = setTimeout(() => {
+      syncAirportButtonStates.default(syncButton, syncIcon);
+      clearTimeout(timeoutToDefault);
+    }, 1000 * 30);
+  }
+};
+
 const generateShareLink = () => {
   let params = new URLSearchParams(location.search);
 
   let items = Object.keys(store);
   items.forEach((item) => {
-    params.set(item, store.getItem(item));
+    if (!shareLinkExclude.includes(item)) {
+      params.set(item, store.getItem(item));
+    }
   });
 
   let { protocol, host, pathname } = window.location;
@@ -612,15 +980,30 @@ const generateShareLink = () => {
   return shareLink;
 };
 
+var copySuccessTimeout = null;
+const copyShareLink = (copyBtn) => {
+  const shareLink = document.getElementById('settingLink');
+  navigator.clipboard.writeText(shareLink.value);
+  copyBtn.classList.add('success');
+  copySuccessTimeout = setTimeout(() => {
+    copyBtn.classList.remove('success');
+    clearTimeout(copySuccessTimeout);
+  }, 1000 * 2);
+};
+
+const clearField = (btn) => {
+  var field = btn.parentElement.querySelector('input');
+  field.value = '';
+  field.dispatchEvent(new Event('change'));
+};
+
 const setDebug = (value) => {
-  settings.debug = Boolean(value);
+  settings.debug = value === 'true';
   if (value == false) {
     store.removeItem('debug');
   } else {
-    store.setItem('debug', Boolean(value));
+    store.setItem('debug', value === 'true');
   }
-
-  document.getElementById('settingLink').value = generateShareLink();
 };
 
 const setReductionFactor = (factor = 10) => {
@@ -644,6 +1027,19 @@ window.addEventListener('DOMContentLoaded', () => {
   for (const [id, value] of Object.entries(fieldDefaults)) {
     document.getElementById(id).addEventListener('change', (event) => {
       let { id, value } = event.target;
+      event.target.classList.remove('calculated');
+
+      if (
+        metarFields.includes(id) &&
+        store.getItem('mostRecentMetar') !== null
+      ) {
+        store.setItem('mostRecentMetarInserted', false);
+        const syncButton = document.getElementById('syncAirportButton');
+        const syncIcon = syncButton.querySelector('i');
+
+        syncAirportButtonStates.insert(syncButton, syncIcon);
+      }
+
       let fields = getFieldValues();
 
       let kollsman = document.getElementById('kollsman');
@@ -682,28 +1078,10 @@ window.addEventListener('DOMContentLoaded', () => {
     top: document.body.scrollHeight - document.body.offsetHeight - belowHeight,
   });
 
-  const altitudeUnitLocs = document.querySelectorAll('.altitudeUnitLabel');
-  altitudeUnitLocs.forEach((loc) => {
-    loc.innerText = settings.altitudeUnit;
-  });
-
-  const pressureUnitLocs = document.querySelectorAll('.pressureUnitLabel');
-  pressureUnitLocs.forEach((loc) => {
-    loc.innerText = settings.pressureUnit;
-  });
-
-  const standardPressureValue = document.getElementById(
-    'standardPressureValue'
-  );
-  standardPressureValue.innerText = standards.pressure[settings.pressureUnit];
-
-  const tempUnitLocs = document.querySelectorAll('.tempUnitLabel');
-  tempUnitLocs.forEach((loc) => {
-    loc.innerText = settings.tempUnit;
-  });
-
   initFields();
+  initLabels();
   initSettingsPanel();
+  updateSyncAirportButton();
   generateRulers();
   updateEnv(runCalculations(getFieldValues()));
 });
