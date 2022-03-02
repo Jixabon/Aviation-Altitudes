@@ -92,7 +92,7 @@ async function handleRequest(request) {
   });
 
   if (/\.netlify\/functions/i.test(url)) {
-    return fetch(request);
+    return fetch(request).catch((e) => offlineResponse);
   }
 
   // Check the core cache; if found, fetch and serve; if not, next
@@ -112,8 +112,10 @@ async function handleRequest(request) {
     console.log('responding from static', url);
     var fetchResponse = fetch(request)
       .then(function (networkResponse) {
-        console.log('caching to static', url);
-        static.put(request, networkResponse.clone());
+        if (networkResponse.ok) {
+          console.log('caching to static', url);
+          static.put(request, networkResponse.clone());
+        }
         return networkResponse;
       })
       .catch((e) => offlineResponse);
@@ -124,31 +126,33 @@ async function handleRequest(request) {
   const dynamic = await caches.open(DYNAMIC_CACHE);
   var dynamicResponse = await dynamic.match(request);
   if (dynamicResponse) {
-    /// stale-while-validate
+    // stale-while-validate
     console.log('responding from dynamic', url);
     var fetchResponse = fetch(request)
       .then((networkResponse) => {
-        console.log('caching to dynamic', url);
-        dynamic.put(request, networkResponse.clone());
+        if (networkResponse.ok) {
+          console.log('caching to dynamic', url);
+          dynamic.put(request, networkResponse.clone());
+        }
         return networkResponse;
       })
       .catch((e) => offlineResponse);
     return staticResponse || fetchResponse;
   }
 
-  var response = fetch(request)
-    .then(() => {
-      if (response.ok) {
-        if (/fonts.(googleapis|gstatic).com/i.test(url)) {
-          dynamic.put(request, response.clone());
-        }
+  try {
+    var response = await fetch(request);
+
+    if (response.ok) {
+      if (/fonts.(googleapis|gstatic).com/i.test(url)) {
+        dynamic.put(request, response.clone());
       }
+    }
 
-      return response;
-    })
-    .catch((e) => offlineResponse);
-
-  return response;
+    return response;
+  } catch (e) {
+    return offlineResponse;
+  }
 }
 
 self.addEventListener('fetch', (event) => {
