@@ -43,6 +43,7 @@ When an airport is set, the button will appear in the top fields panel. There ar
 - <img src="arrow-up-from-bracket-solid.svg" width="15px" height="15px" style="background:white;padding:5px;margin-right:8px;border-radius:8px;vertical-align:middle;"/> Allows to reset fields with METAR values
 - <img src="wifi-solid.svg" width="15px" height="15px" style="background:white;padding:5px;margin-right:8px;border-radius:8px;vertical-align:middle;"/> (Red) Network connection could not be made
 - <img src="triangle-exclamation-solid.svg" width="15px" height="15px" style="background:white;padding:5px;margin-right:8px;border-radius:8px;vertical-align:middle;"/> Something went wrong when fetching the METAR
+- ICAO identifier color indicates flight category
 
 #### How is the data used?
 
