@@ -33,6 +33,26 @@ Located at the very top of the screen or opened by the menu button.
 
 Note: Red text in a field indicates that it is a calculated value.
 
+### Airport Sync Button
+
+When an airport is set, the button will appear in the top fields panel. There are a few things that the button may try to tell you:
+
+- <img src="arrows-rotate-solid.svg" width="15px" height="15px" style="background:white;padding:5px;margin-right:8px;border-radius:8px;vertical-align:middle;"/> A METAR can be fetched (spinning indicates the METAR is being fetched)
+- <img src="check-solid.svg" width="15px" height="15px" style="background:white;padding:5px;margin-right:8px;border-radius:8px;vertical-align:middle;"/> The METAR has been fetched and set successfully
+- <img src="stopwatch-solid.svg" width="15px" height="15px" style="background:white;padding:5px;margin-right:8px;border-radius:8px;vertical-align:middle;"/> Fetching a new METAR has been disabled until the next hour on the hour
+- <img src="arrow-up-from-bracket-solid.svg" width="15px" height="15px" style="background:white;padding:5px;margin-right:8px;border-radius:8px;vertical-align:middle;"/> Allows to reset fields with METAR values
+- <img src="wifi-solid.svg" width="15px" height="15px" style="background:white;padding:5px;margin-right:8px;border-radius:8px;vertical-align:middle;"/> (Red) Network connection could not be made
+- <img src="triangle-exclamation-solid.svg" width="15px" height="15px" style="background:white;padding:5px;margin-right:8px;border-radius:8px;vertical-align:middle;"/> Something went wrong when fetching the METAR
+
+#### How is the data used?
+
+The following fields are set from the METAR:
+
+- Elevation (the elevation of the observing station)
+- Pressure
+- Surface Temperature
+- Dew Point
+
 ### Reset Button
 
 Resets all fields to their "default" values.
@@ -55,15 +75,9 @@ On most devices you can "Add to home screen" or "install" this webpage for offli
 
 ## Potential Features
 
-### Airport Lookup
-
-Given an airport ICAO identifier, fetch latest METAR and fill in relevant data.
-
-The Aviation Weather Center has a free API, however, is not available to ajax requests. Will look into this feature if demand is high.
-
 ### Clouds
 
-Illustrate where clouds would form (or are if Airport lookup is implemented) based on temperatures and lapse rates.
+Illustrate where clouds would form or are based on temperatures and lapse rates or METAR.
 
 ## Settings
 
@@ -74,6 +88,10 @@ Adjust what pressure unit you want to use: `inHg`, `hPa`.
 ### Flight Levels Start
 
 Adjust where the flight levels start. This is also determine if the Kollsman option will be set to standard pressure when Indicated or True values are set greater than or equal to the start of the flight levels.
+
+### Airport
+
+Set the airport to fetch a METAR for.
 
 ### Share/Bookmark
 
