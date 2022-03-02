@@ -22,7 +22,12 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-C7BLVVEMK7"></script>
     <script>
-        const local = /192|127|localhost|netlify.live/;
+        // 192.168.1.0
+        // 127.0.0.1
+        // localhost
+        // aviation-altitudes-0de5d1.netlify.live (tunnel)
+        // feature-branch--aviation-altitudes.netlify.app (branch deploy)
+        const local = /192|127|localhost|netlify\.live|--/;
         const hostname = new URL(window.location).hostname.toString();
         if (!local.test(hostname)) {
             window.dataLayer = window.dataLayer || [];
