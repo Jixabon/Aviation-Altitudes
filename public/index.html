@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0">
     <meta name="description" content="Teach or learn about different altitudes in aviation. See live how temperature and pressure effect aircraft readings and freezing levels! Try it out TODAY!">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Aviation Altitudes</title>
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -14,6 +15,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cabin:wght@600&display=swap" rel="stylesheet">
+    <link href="/css/fontawesome.min.css" rel="stylesheet">
+    <link href="/css/solid.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/style.css">
     <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -31,10 +34,10 @@
             console.info('Google Analytics Disabled');
         }
 
-        if ('serviceWorker' in navigator) {
+        if (false) { // 'serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 console.log('Registering Service Worker');
-                navigator.serviceWorker.register('service-worker.js')
+                navigator.serviceWorker.register('/sw.js', {scope: '/'})
                     .then(registration => {
                         console.log('Service Worker is registered', registration);
                     })
@@ -109,8 +112,18 @@
                     <input type="number" id="settingFlightLevelStart" onchange="setFlightLevelStart(this.value);" placeholder="18" />
                 </div>
                 <div class="input-wrapper">
+                    <label>Airport METAR Sync</label>
+                    <div class="input-inline-wrapper">
+                        <input type="text" id="settingAirport" onchange="setAirport(this.value)" placeholder="ICAO Airport Identifier" />
+                        <button onclick="clearField(this);">Clear</button>
+                    </div>
+                </div>
+                <div class="input-wrapper">
                     <label>Share/Bookmark</label>
-                    <input type="text" id="settingLink" placeholder="Change some settings!" />
+                    <div class="input-inline-wrapper">
+                        <input type="text" id="settingLink" placeholder="Change some settings!" readonly="true"/>
+                        <button id="copyButton" onclick="copyShareLink(this);">Copy</button>
+                    </div>
                 </div>
                 <div class="input-wrapper">
                     <div class="input-inline-wrapper">
