@@ -34,7 +34,7 @@
             console.info('Google Analytics Disabled');
         }
 
-        if (false) { // 'serviceWorker' in navigator) {
+        if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 console.log('Registering Service Worker');
                 navigator.serviceWorker.register('/sw.js', {scope: '/'})
