@@ -14,22 +14,14 @@ The host for this project has changed. The new URL for the app is [https://aviat
 
 Located at the very top of the screen or opened by the menu button.
 
-- Elevation `#elevation`
-  - The elevation of the airport
-- Pressure `#pressure`
-  - The pressure at the surface level/airport (Also what should be set in the kollsman window/altimeter setting)
-- Surface OAT `#surfaceTemp`
-  - The temperature observed at the surface or airport
-- Dew Point `#dewPoint`
-  - The dew point observed at the surface or airport
-- Indicated Altitude `#indicatedAlt`
-  - The altitude that shows on the aircraft's instruments
-- True Altitude `#trueAlt`
-  - The altitude that the aircraft is above mean sea level
-- Kollsman Setting `#kollsman`
-  - This is the actual setting that shows in the altimeter instrument. Try setting it incorrectly and see what happens!
-- Outside Air Temperature `#oat`
-  - Temperature observed in the air by the aircraft's instruments
+- Elevation `#elevation` - The elevation of the airport
+- Pressure `#pressure` - The pressure at the surface level/airport (Also what should be set in the kollsman window/altimeter setting)
+- Surface OAT `#surfaceTemp` - The temperature observed at the surface or airport
+- Dew Point `#dewPoint` - The dew point observed at the surface or airport
+- Indicated Altitude `#indicatedAlt` - The altitude that shows on the aircraft's instruments
+- True Altitude `#trueAlt` - The altitude that the aircraft is above mean sea level
+- Kollsman Setting `#kollsman` - This is the actual setting that shows in the altimeter instrument. Try setting it incorrectly and see what happens!
+- Outside Air Temperature `#oat` - Temperature observed in the air by the aircraft's instruments
 
 Note: Red text in a field indicates that it is a calculated value.
 
