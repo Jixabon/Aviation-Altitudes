@@ -690,7 +690,7 @@ freezingLevel> span {
     }
 }
 
-@media (display-mode: standalone) {
+@media (display-mode: fullscreen), (display-mode: standalone) {
     div,
     span,
     h1,
@@ -699,6 +699,9 @@ freezingLevel> span {
     label,
     button,
     .btn {
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
         user-select: none;
     }
 }
