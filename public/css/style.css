@@ -323,7 +323,7 @@ settings #settingsFields {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 #versions {
     display: flex;
