@@ -195,14 +195,14 @@ ui.out {
     top: 0px;
 }
 
-inputs, info, views, settings {
+inputs, info, views, settings, #updateAvailable {
     color: white;
     background-color: rgba(0,0,0,0.7);
     border: #4e4e4e 1px solid;
     box-shadow: #0000002e 5px 5px 8px;
 }
 @supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
-  inputs, info, views, settings {
+  inputs, info, views, settings, #updateAvailable {
     background-color: rgba(0,0,0,0.3);
     backdrop-filter: blur(3px);
     -webkit-backdrop-filter: blur(3px);
@@ -352,6 +352,25 @@ views > p {
 }
 views > p.smallprint {
     font-size: 10px;
+}
+
+#updateAvailable {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: var(--ui-padding);
+    border-radius: var(--ui-radius);
+    position: fixed;
+    bottom: -100%;
+    opacity: 0;
+    transition: bottom .2s ease-out;
+    transition: bottom .4s ease-out, opacity .2s ease-out;
+    will-change: bottom;
+}
+#updateAvailable.out {
+    transition: bottom .4s ease-out, opacity .2s ease-out .2s;
+    opacity: 1;
+    bottom: var(--sea-height);
 }
 
 environment {
