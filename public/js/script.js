@@ -409,14 +409,20 @@ const scrollToSea = () => {
 
 const initFields = () => {
   for (const [id, value] of Object.entries(fieldDefaults)) {
+    const field = document.getElementById(id);
+
     if (typeof value == 'object') {
-      document.getElementById(id).value =
-        store.getItem(id) !== null
-          ? store.getItem(id)
-          : value[settings[`${value.type}Unit`]];
+      const { type } = value;
+      const currentUnit = settings[`${type}Unit`];
+
+      if (standards[type]) {
+        field.placeholder = standards[type][currentUnit];
+      }
+
+      field.value =
+        store.getItem(id) !== null ? store.getItem(id) : value[currentUnit];
     } else {
-      document.getElementById(id).value =
-        store.getItem(id) !== null ? store.getItem(id) : value;
+      field.value = store.getItem(id) !== null ? store.getItem(id) : value;
     }
   }
 };
@@ -604,7 +610,14 @@ const setUnit = (unit, value = null) => {
     standardPressureValue.innerText = standards.pressure[newVal];
   }
 
-  // set placeholders to default value according to unit
+  Object.entries(fieldDefaults)
+    .filter(([id, { type }]) => type === unit)
+    .forEach(([id, value]) => {
+      const input = document.getElementById(id);
+      if (input && standards[unit]) {
+        input.placeholder = standards[unit][newVal];
+      }
+    });
 
   if (newVal == units[unit].default) {
     dbug(3, `deleting param ${unit}Unit`, newVal);
