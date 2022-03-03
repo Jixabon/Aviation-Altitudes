@@ -49,7 +49,15 @@
                     .catch(err => {
                         console.error('Registration failed:', err);
                     });
+
+                    navigator.serviceWorker.addEventListener('message', event => {
+                        if (event.data.version) {
+                            console.log('setting sw version');
+                            window.localStorage.setItem('sw-version', event.data.version);
+                        }
+                    });
             });
+
         }
     </script>
     <script src="/js/script.js"></script>
@@ -151,6 +159,9 @@
                 <div id="settingsButtons">
                     <a href="https://jixabon.github.io/Aviation-Altitudes/#interface" class="btn" target="_blank">Help</a>
                     <button onClick="toggleOut('settingsWrapper');updateSettings();">Close</button>
+                </div>
+                <div id="versions">
+                    <span id="sw-version"></span>
                 </div>
             </settings>
         </div>

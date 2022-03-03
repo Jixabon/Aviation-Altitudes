@@ -1042,6 +1042,11 @@ const dbug = (level, ...args) => {
 // --- Listeners ---
 
 window.addEventListener('DOMContentLoaded', () => {
+  // load versions
+  document.getElementById('sw-version').innerText = `SW: v${
+    store.getItem('sw-version') !== null ? store.getItem('sw-version') : '0.0.0'
+  }`;
+
   // update environment on field value change
   for (const [id, value] of Object.entries(fieldDefaults)) {
     document.getElementById(id).addEventListener('change', (event) => {
