@@ -64,12 +64,6 @@ At the bottom of the screen are the Go To buttons to quickly bring into view eit
 
 On most devices you can "Add to home screen" or "install" this webpage for offline and ease of use.
 
-## Potential Features
-
-### Clouds
-
-Illustrate where clouds would form or are based on temperatures and lapse rates or METAR.
-
 ## Settings
 
 ### Pressure Unit
