@@ -42,7 +42,7 @@ When an airport is set, the button will appear in the top fields panel. There ar
 The following fields are set from the METAR:
 
 - Elevation (the elevation of the observing station)
-- Pressure
+- Pressure (currently only supports inHg)
 - Surface Temperature
 - Dew Point
 
