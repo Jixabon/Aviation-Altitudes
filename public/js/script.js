@@ -458,6 +458,22 @@ const initSettingsPanel = () => {
   settingsDebug.checked = settings.debug;
 };
 
+const updateSettings = () => {
+  let settingsPressureUnit = document.getElementById('settingPressureUnit');
+  setUnit('pressure', settingsPressureUnit.value);
+
+  let settingsFlightLevelStart = document.getElementById(
+    'settingFlightLevelStart'
+  );
+  setFlightLevelStart(settingsFlightLevelStart.value);
+
+  let settingsAirport = document.getElementById('settingAirport');
+  setAirport(settingsAirport.value);
+
+  let settingsDebug = document.getElementById('settingDebug');
+  setDebug(settingsDebug.checked);
+};
+
 const updateState = (fields) => {
   dbug(1, 'updating state');
   for (const [id, value] of Object.entries(fields)) {

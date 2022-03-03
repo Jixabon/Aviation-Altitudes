@@ -107,14 +107,14 @@
                 <h1>Settings</h1>
                 <div class="input-wrapper">
                     <label>Pressure Unit</label>
-                    <select id="settingPressureUnit" onchange="setUnit('pressure', this.value);">
+                    <select id="settingPressureUnit">
                         <option value="inHg">inHg</option>
                         <option value="hPa">hPa</option>
                     </select>
                 </div>
                 <div class="input-wrapper">
                     <label>Flight Levels Start (thousands)</label>
-                    <input type="number" id="settingFlightLevelStart" onchange="setFlightLevelStart(this.value);" placeholder="18" />
+                    <input type="number" id="settingFlightLevelStart" placeholder="18" />
                 </div>
                 <div class="input-wrapper">
                     <label>Airport METAR Sync</label>
@@ -122,7 +122,6 @@
                         <input type="text"
                             id="settingAirport"
                             oninput="let p=this.selectionStart;this.value=this.value.toUpperCase().replace(/(?![A-Z])./g, '').substr(0, 4);this.setSelectionRange(p, p);"
-                            onchange="setAirport(this.value);"
                             placeholder="ICAO Airport Identifier"
                         />
                         <button onclick="clearField(this);">Clear</button>
@@ -139,7 +138,7 @@
                     <div class="input-inline-wrapper">
                         <span>Developer</span>
                         <label class="switch">
-                            <input type="checkbox" id="settingDebug" onchange="setDebug(this.checked);">
+                            <input type="checkbox" id="settingDebug">
                             <span class="slider"></span>
                         </label>
                     </div>
@@ -151,7 +150,7 @@
                 </div> -->
                 <div id="settingsButtons">
                     <a href="https://jixabon.github.io/Aviation-Altitudes/#interface" class="btn" target="_blank">Help</a>
-                    <button onClick="toggleOut('settingsWrapper');">Close</button>
+                    <button onClick="toggleOut('settingsWrapper');updateSettings();">Close</button>
                 </div>
             </settings>
         </div>
