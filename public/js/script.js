@@ -643,7 +643,8 @@ const setFlightLevelStart = (flightLevel) => {
 const setAirport = (value) => {
   settings.airport = value;
   var oldAirport = store.getItem('airport');
-  var isDifferent = value !== (oldAirport !== null ? oldAirport : '');
+  var isDifferent =
+    value !== '' && value !== (oldAirport !== null ? oldAirport : '');
   if (value == '') {
     store.removeItem('airport');
   } else {
@@ -651,6 +652,8 @@ const setAirport = (value) => {
   }
 
   updateSyncAirportButton(isDifferent);
+
+  document.getElementById('settingLink').value = generateShareLink();
 };
 
 const faClasses = [

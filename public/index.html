@@ -119,7 +119,12 @@
                 <div class="input-wrapper">
                     <label>Airport METAR Sync</label>
                     <div class="input-inline-wrapper">
-                        <input type="text" id="settingAirport" onchange="setAirport(this.value)" placeholder="ICAO Airport Identifier" />
+                        <input type="text"
+                            id="settingAirport"
+                            oninput="let p=this.selectionStart;this.value=this.value.toUpperCase().replace(/(?![A-Z])./g, '').substr(0, 4);this.setSelectionRange(p, p);"
+                            onchange="setAirport(this.value);"
+                            placeholder="ICAO Airport Identifier"
+                        />
                         <button onclick="clearField(this);">Clear</button>
                     </div>
                 </div>
