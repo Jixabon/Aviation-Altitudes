@@ -788,7 +788,7 @@ const updateSyncAirportButton = (forceUpdate) => {
           `sync button will be set to default in ${milliseconds / 1000} seconds`
         );
         timeoutToDefault = setTimeout(() => {
-          syncAirportButtonStates.default(syncButton, syncIcon);
+          syncAirportButtonStates.default(existingButton, icon);
           clearTimeout(timeoutToDefault);
         }, milliseconds);
       }
