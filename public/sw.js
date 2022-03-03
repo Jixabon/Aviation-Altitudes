@@ -84,7 +84,6 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 
   self.clients.matchAll().then((all) => {
-    console.log(all);
     all.forEach((client) => {
       console.log('sending sw version');
       client.postMessage({ version: OFFLINE_VERSION });
