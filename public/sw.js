@@ -1,4 +1,4 @@
-const OFFLINE_VERSION = 3;
+const OFFLINE_VERSION = 4;
 const CACHE_PREFIX = 'avi-alts';
 const CORE_CACHE = CACHE_PREFIX + '-core-' + OFFLINE_VERSION;
 const STATIC_CACHE = CACHE_PREFIX + '-static';
