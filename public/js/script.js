@@ -37,6 +37,7 @@ const metarFields = ['elevation', 'pressure', 'surfaceTemp', 'dewPoint'];
 const shareLinkExclude = [
   'sw-version',
   'debug',
+  'reductionFactor',
   'mostRecentMetar',
   'mostRecentMetarTime',
   'mostRecentMetarInserted',
@@ -463,6 +464,11 @@ const initSettingsPanel = () => {
 
   let settingsDebug = document.getElementById('settingDebug');
   settingsDebug.checked = settings.debug;
+
+  let settingsReductionFactor = document.getElementById(
+    'settingReductionFactor'
+  );
+  settingsReductionFactor.value = settings.reductionFactor;
 
   const debugFields = document.querySelectorAll('[debug]');
   if (!settings.debug) {
@@ -1037,6 +1043,12 @@ const setDebug = (value) => {
 
 const setReductionFactor = (factor = 10) => {
   settings.reductionFactor = factor;
+  if (factor == 10) {
+    store.removeItem('reductionFactor');
+  } else {
+    store.setItem('reductionFactor', factor);
+  }
+
   // const environment = document.getElementById('environment');
   // environment.style.height.value = (10 - factor) * 1000 + 7000;
   updateEnv(runCalculations(getFieldValues()));
