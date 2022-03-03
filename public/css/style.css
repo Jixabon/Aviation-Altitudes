@@ -82,6 +82,8 @@ a {
 }
 input, select {
     width: 100%;
+    background-color: white;
+    color: black;
 }
 input, select, button, .btn {
     font-family: 'Cabin', sans-serif;
