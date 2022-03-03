@@ -463,6 +463,13 @@ const initSettingsPanel = () => {
 
   let settingsDebug = document.getElementById('settingDebug');
   settingsDebug.checked = settings.debug;
+
+  const debugFields = document.querySelectorAll('[debug]');
+  if (!settings.debug) {
+    debugFields.forEach((field) => field.classList.add('hidden'));
+  } else {
+    debugFields.forEach((field) => field.classList.remove('hidden'));
+  }
 };
 
 const updateState = (fields) => {
@@ -1018,10 +1025,13 @@ const clearField = (btn, event) => {
 
 const setDebug = (value) => {
   settings.debug = value === 'true';
+  const debugFields = document.querySelectorAll('[debug]');
   if (value == false) {
     store.removeItem('debug');
+    debugFields.forEach((field) => field.classList.add('hidden'));
   } else {
     store.setItem('debug', value === 'true');
+    debugFields.forEach((field) => field.classList.remove('hidden'));
   }
 };
 
