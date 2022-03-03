@@ -1,4 +1,4 @@
-const OFFLINE_VERSION = '1.4.1';
+const OFFLINE_VERSION = '1.5.0';
 const CACHE_PREFIX = 'avi-alts';
 const CORE_CACHE = CACHE_PREFIX + '-core-' + OFFLINE_VERSION;
 const STATIC_CACHE = CACHE_PREFIX + '-static';
@@ -90,6 +90,12 @@ self.addEventListener('activate', (event) => {
       client.postMessage({ version: OFFLINE_VERSION });
     });
   });
+});
+
+self.addEventListener('message', function (event) {
+  if (event.data.action === 'skipWaiting') {
+    self.skipWaiting();
+  }
 });
 
 async function handleRequest(request) {
