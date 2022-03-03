@@ -74,6 +74,7 @@
                     if (event.data.version) {
                         console.log('setting sw version');
                         window.localStorage.setItem('sw-version', event.data.version);
+                        document.getElementById('sw-version')?.innerText = `SW: v${event.data.version}`
                     }
                 });
 
