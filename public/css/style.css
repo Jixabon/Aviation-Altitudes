@@ -51,6 +51,10 @@ body {
 }
 
 h1 {
+    display: none;
+}
+
+h2 {
     font-size: 24px;
 }
 
@@ -683,5 +687,18 @@ freezingLevel> span {
 
     density > span {
         left: calc(var(--ruler-offset) + (var(--label-width) + var(--label-gap)) * 3.5);
+    }
+}
+
+@media (display-mode: standalone) {
+    div,
+    span,
+    h1,
+    h2,
+    p,
+    label,
+    button,
+    .btn {
+        user-select: none;
     }
 }
