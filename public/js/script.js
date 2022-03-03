@@ -35,6 +35,7 @@ const units = {
 const metarFields = ['elevation', 'pressure', 'surfaceTemp', 'dewPoint'];
 
 const shareLinkExclude = [
+  'sw-version',
   'debug',
   'mostRecentMetar',
   'mostRecentMetarTime',
