@@ -1,4 +1,4 @@
-const OFFLINE_VERSION = 4;
+const OFFLINE_VERSION = '4.0.1';
 const CACHE_PREFIX = 'avi-alts';
 const CORE_CACHE = CACHE_PREFIX + '-core-' + OFFLINE_VERSION;
 const STATIC_CACHE = CACHE_PREFIX + '-static';
@@ -82,6 +82,14 @@ self.addEventListener('activate', (event) => {
 
   // Tell the active service worker to take control of the page immediately.
   self.clients.claim();
+
+  self.clients.matchAll().then((all) => {
+    console.log(all);
+    all.forEach((client) => {
+      console.log('sending sw version');
+      client.postMessage({ version: OFFLINE_VERSION });
+    });
+  });
 });
 
 async function handleRequest(request) {
