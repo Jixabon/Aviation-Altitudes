@@ -250,6 +250,7 @@ inputs {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-end;
+    align-self: stretch;
     border-top: none;
     gap: 10px;
     border-bottom-right-radius: var(--ui-radius);
