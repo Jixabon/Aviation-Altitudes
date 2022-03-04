@@ -908,8 +908,6 @@ const setWindIndicator = (metar) => {
   const direction = wind.querySelector('direction');
   const velocity = wind.querySelector('velocity');
 
-  delete metar.wind_gust_kt;
-
   arrow.style.transform = metar?.wind_dir_degrees
     ? `rotate(${metar.wind_dir_degrees}deg)`
     : '';
