@@ -351,6 +351,8 @@ const resetEnv = () => {
     }
   }
 
+  store.setItem('mostRecentMetarInserted', false);
+  updateSyncAirportButton();
   updateEnv(runCalculations(getFieldValues()));
   scrollToSea();
 };
@@ -870,8 +872,12 @@ const insertMetar = (metar) => {
   elevation.value = round2(metar?.elevation_m * 3.281);
   elevation.classList.add('calculated');
 
+  const pressureMap = {
+    inHg: metar.altim_in_hg,
+    hPa: metar.sea_level_pressure_mb,
+  };
   const pressure = document.getElementById('pressure');
-  pressure.value = round2(metar.altim_in_hg);
+  pressure.value = round2(pressureMap[settings.pressureUnit]);
   pressure.classList.add('calculated');
 
   const surfaceTemp = document.getElementById('surfaceTemp');
@@ -930,6 +936,7 @@ const syncAirport = async () => {
         var metar = json[0];
 
         if (metar) {
+          dbug(2, metar);
           store.setItem('mostRecentMetarTime', metar.observation_time);
           store.setItem('mostRecentMetar', JSON.stringify(metar));
           syncAirportButtonStates.success(syncButton, syncIcon);
