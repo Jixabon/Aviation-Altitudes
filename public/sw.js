@@ -1,4 +1,4 @@
-const OFFLINE_VERSION = '1.6.1';
+const OFFLINE_VERSION = '1.6.2';
 const WHATS_NEW = [];
 
 const CACHE_PREFIX = 'avi-alts';
