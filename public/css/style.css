@@ -274,8 +274,6 @@ info {
     font-size: 14px;
     border-radius: var(--ui-radius);
     padding: var(--ui-padding);
-    margin-right: var(--ruler-offset);
-    margin-left: var(--ruler-offset);
     margin-top: 15px;
     opacity: 0;
     position: absolute;
