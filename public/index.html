@@ -188,7 +188,12 @@
                     </div>
                     <div class="input-wrapper hidden" debug>
                         <label>Reduction Factor</label>
-                        <input type="number" id="settingReductionFactor" onblur="setReductionFactor(this.value);" placeholder="10"/>
+                        <div class="input-inline-wrapper">
+                            <div class="input-inline-wrapper">
+                                1000ft <i class="fa-solid fa-divide"></i>
+                            </div>
+                            <input type="number" id="settingReductionFactor" onblur="setReductionFactor(this.value);" placeholder="10"/>
+                        </div>
                     </div>
                 </div>
                 <div id="settingsButtons">
