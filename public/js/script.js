@@ -759,6 +759,7 @@ const syncAirportButtonStates = {
 };
 
 const setFlightCategory = (button, category) => {
+  button.classList.remove('vfr', 'mvfr', 'ifr', 'lifr');
   switch (category) {
     case 'VFR':
       dbug(1, 'setting flight category to VFR');
@@ -782,7 +783,6 @@ const setFlightCategory = (button, category) => {
 
     default:
       dbug(1, 'unknown flight category');
-      button.classList.remove('vfr', 'mvfr', 'ifr', 'lifr');
   }
 };
 
@@ -957,7 +957,32 @@ const syncAirport = async () => {
     fetch(`${protocol}//${host}/.netlify/functions/metar/${settings.airport}`)
       .then((response) => {
         if (response.ok) {
-          return response.json();
+          return [
+            {
+              raw_text:
+                'KGTU 041756Z 16013G19KT 10SM OVC017 22/16 A3013 RMK AO2 SLP199 T02170161 10217 20161 58016',
+              station_id: 'KGTU',
+              observation_time: '2022-03-04T17:56:00Z',
+              latitude: '30.68',
+              longitude: '-97.68',
+              temp_c: '21.7',
+              dewpoint_c: '16.1',
+              wind_dir_degrees: '160',
+              wind_speed_kt: '13',
+              wind_gust_kt: '19',
+              visibility_statute_mi: '10.0',
+              altim_in_hg: '30.129921',
+              sea_level_pressure_mb: '1019.9',
+              quality_control_flags: { auto_station: 'TRUE' },
+              sky_condition: { sky_cover: 'OVC', cloud_base_ft_agl: '1700' },
+              flight_category: 'MVFR',
+              three_hr_pressure_tendency_mb: '-1.6',
+              maxT_c: '21.7',
+              minT_c: '16.1',
+              metar_type: 'SPECI',
+              elevation_m: '232.0',
+            },
+          ]; // response.json();
         } else {
           syncAirportButtonStates.error(syncButton, syncIcon);
 
