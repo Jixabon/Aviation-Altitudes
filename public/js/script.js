@@ -823,12 +823,14 @@ const updateSyncAirportButton = (forceUpdate) => {
     }
 
     var metarJson = store.getItem('mostRecentMetar');
-    if (metarJson !== 'null') {
+    if (metarJson !== null) {
       var metar = JSON.parse(metarJson);
       setFlightCategory(existingButton, metar?.flight_category);
+      setWindIndicator(metar);
     }
   } else {
     existingButton?.remove();
+    document.querySelector('wind')?.classList.add('hidden');
     store.removeItem('mostRecentMetar');
     store.removeItem('mostRecentMetarTime');
     store.removeItem('mostRecentMetarInserted');
@@ -891,6 +893,29 @@ const insertMetar = (metar) => {
   // document.getElementById('kollsman').value = '';
 
   store.setItem('mostRecentMetarInserted', true);
+};
+
+const setWindIndicator = (metar) => {
+  const wind = document.querySelector('wind');
+  wind.classList.remove('hidden');
+
+  const arrow = wind.querySelector('arrow');
+  const direction = wind.querySelector('direction');
+  const velocity = wind.querySelector('velocity');
+
+  delete metar.wind_gust_kt;
+
+  arrow.style.transform = metar?.wind_dir_degrees
+    ? `rotate(${metar.wind_dir_degrees}deg)`
+    : '';
+  direction.innerHTML =
+    metar.wind_dir_degrees == 0 ? 'Wind' : `${metar?.wind_dir_degrees}&deg;`;
+  velocity.innerText =
+    metar.wind_speed_kt == 0
+      ? 'Calm'
+      : `${[metar?.wind_speed_kt, metar?.wind_gust_kt]
+          .filter((speed) => !!speed === true)
+          .join('-')}kts`;
 };
 
 const insertRecentMetar = () => {
@@ -963,6 +988,7 @@ const syncAirport = async () => {
 
           setFlightCategory(syncButton, metar?.flight_category);
           insertMetar(metar);
+          setWindIndicator(metar);
 
           updateEnv(runCalculations(getFieldValues()));
         } else {
