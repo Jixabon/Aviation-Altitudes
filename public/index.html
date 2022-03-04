@@ -159,10 +159,12 @@
                 <div id="settingsFields">
                     <div class="input-wrapper">
                         <label>Pressure Unit</label>
-                        <select id="settingPressureUnit" onchange="setUnit('pressure', this.value);">
-                            <option value="inHg">inHg</option>
-                            <option value="hPa">hPa</option>
-                        </select>
+                        <div class="select-wrapper">
+                            <select id="settingPressureUnit" onchange="setUnit('pressure', this.value);">
+                                <option value="inHg">inHg</option>
+                                <option value="hPa">hPa</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="input-wrapper">
                         <label>Flight Levels Start (thousands)</label>
