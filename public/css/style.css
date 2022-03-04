@@ -97,6 +97,30 @@ input, select, button, .btn {
     border: none;
     border-radius: 100px;
 }
+.select-wrapper {
+    position: relative;
+    width: 100%;
+}
+.select-wrapper:before {
+    content: '\f078';
+    font-family: "Font Awesome 6 Free";
+    color: black;
+    display: inline-block;
+    position: absolute;
+    right: 13px;
+    top: 7px;
+    pointer-events: none;
+}
+select {
+    width: 100%;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+select::-ms-expand {
+    display: none;
+}
 
 .help-text {
     font-size: 10px;
