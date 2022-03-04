@@ -193,16 +193,17 @@ input:checked + .slider:before {
 }
 
 #syncAirportButton.vfr {
-    color: rgb(46, 255, 46);
+    color: rgb(34, 248, 34);
 }
 #syncAirportButton.mvfr {
     color: rgb(51, 112, 255);
 }
 #syncAirportButton.ifr {
-    color: rgb(154, 30, 255)
+    color: rgb(179, 9, 9);
+
 }
 #syncAirportButton.lifr {
-    color: rgb(255, 0, 255);
+    color: rgb(154, 30, 255);
 
 }
 #syncAirportButton i {
