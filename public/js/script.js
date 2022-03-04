@@ -610,6 +610,11 @@ const toggleOut = (id, btn, outMsg, inMsg) => {
   }
 };
 
+const closeWhatsNew = () => {
+  toggleOut('whatsNewWrapper');
+  store.removeItem('whatsNew');
+};
+
 const setUnit = (unit, value = null) => {
   let newVal = value ? value : units[unit].default;
   settings[`${unit}Unit`] = newVal;
@@ -1156,6 +1161,14 @@ window.addEventListener('DOMContentLoaded', () => {
   window.scrollTo({
     top: document.body.scrollHeight - document.body.offsetHeight - belowHeight,
   });
+
+  var whatsNew = store.getItem('whatsNew');
+  if (whatsNew !== null) {
+    const wrapper = document.getElementById('whatsNewWrapper');
+    const whatsNewText = wrapper.querySelector('#whatsNewText');
+    whatsNewText.innerHTML = whatsNew;
+    wrapper.classList.add('out');
+  }
 
   initFields();
   initLabels();
