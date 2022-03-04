@@ -200,6 +200,10 @@
                         <span class="help-text">Enabling this setting could cause things to not display properly.</span>
                     </div>
                     <div class="input-wrapper hidden" debug>
+                        <label>Logging Level</label>
+                        <input type="number" id="settingDebugLevel" onblur="setDebugLevel(this.value);" placeholder="1" />
+                    </div>
+                    <div class="input-wrapper hidden" debug>
                         <label>Reduction Factor</label>
                         <div class="input-inline-wrapper">
                             <div class="input-inline-wrapper">

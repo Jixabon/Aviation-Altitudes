@@ -37,6 +37,7 @@ const metarFields = ['elevation', 'pressure', 'surfaceTemp', 'dewPoint'];
 const shareLinkExclude = [
   'sw-version',
   'debug',
+  'debugLevel',
   'reductionFactor',
   'mostRecentMetar',
   'mostRecentMetarTime',
@@ -111,8 +112,9 @@ let settings = {
       : 18,
   airport: store.getItem('airport') !== null ? store.getItem('airport') : '',
   debug:
-    store.getItem('debug') !== null ? Boolean(store.getItem('debug')) : false,
-  debugLevel: 1,
+    store.getItem('debug') !== null ? store.getItem('debug') === 'true' : false,
+  debugLevel:
+    store.getItem('debugLevel') !== null ? store.getItem('debugLevel') : 1,
   reductionFactor:
     store.getItem('reductionFactor') !== null
       ? store.getItem('reductionFactor')
@@ -467,6 +469,9 @@ const initSettingsPanel = () => {
   let settingsDebug = document.getElementById('settingDebug');
   settingsDebug.checked = settings.debug;
 
+  let settingsDebugLevel = document.getElementById('settingDebugLevel');
+  settingsDebugLevel.value = settings.debugLevel;
+
   let settingsReductionFactor = document.getElementById(
     'settingReductionFactor'
   );
@@ -756,22 +761,27 @@ const syncAirportButtonStates = {
 const setFlightCategory = (button, category) => {
   switch (category) {
     case 'VFR':
+      dbug(1, 'setting flight category to VFR');
       button.classList.add('vfr');
       break;
 
     case 'MVFR':
+      dbug(1, 'setting flight category to MVFR');
       button.classList.add('mvfr');
       break;
 
     case 'IFR':
+      dbug(1, 'setting flight category to IFR');
       button.classList.add('ifr');
       break;
 
     case 'LIFR':
+      dbug(1, 'setting flight category to LIFR');
       button.classList.add('lifr');
       break;
 
     default:
+      dbug(1, 'unknown flight category');
       button.classList.remove('vfr', 'mvfr', 'ifr', 'lifr');
   }
 };
@@ -1074,6 +1084,15 @@ const setDebug = (value) => {
   } else {
     store.setItem('debug', value === 'true');
     debugFields.forEach((field) => field.classList.remove('hidden'));
+  }
+};
+
+const setDebugLevel = (level) => {
+  settings.debugLevel = level;
+  if (level == 1) {
+    store.removeItem('debugLevel');
+  } else {
+    store.setItem('debugLevel', level);
   }
 };
 
