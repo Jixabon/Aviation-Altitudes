@@ -58,6 +58,11 @@ a {
     color: white;
 }
 
+ul {
+    list-style: disc;
+    padding-left: 14px;
+}
+
 /* --- input and button styles --- */
 .input-wrapper, .input-inline-wrapper {
     display: flex;
@@ -201,14 +206,14 @@ ui.out {
 }
 
 
-inputs, info, views, settings, #updateAvailable {
+inputs, info, views, settings, whatsNew, #updateAvailable {
     color: white;
     background-color: rgba(0,0,0,0.7);
     border: #4e4e4e 1px solid;
     box-shadow: #0000002e 5px 5px 8px;
 }
 @supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
-  inputs, info, views, settings, #updateAvailable {
+  inputs, info, views, settings, whatsNew, #updateAvailable {
     background-color: rgba(0,0,0,0.3);
     backdrop-filter: blur(3px);
     -webkit-backdrop-filter: blur(3px);
@@ -350,8 +355,8 @@ velocity {
     right: 0;
 }
 
-/* --- settings panel --- */
-#settingsWrapper {
+/* --- settings, whats new panel --- */
+#settingsWrapper, #whatsNewWrapper {
     display: none;
     background-color: rgba(15,15,15,0.89);
     width: 100%;
@@ -361,11 +366,11 @@ velocity {
     top: 0;
     z-index: 200;
 }
-#settingsWrapper.out {
+#settingsWrapper.out, #whatsNewWrapper.out {
     display: flex !important;
 }
 
-settings {
+settings, whatsNew {
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -376,7 +381,7 @@ settings {
     padding: var(--ui-padding);
     border-radius: var(--ui-radius);
 }
-settings h1 {
+settings h2, whatsNew h2 {
     margin: 0;
 }
 settings #settingsFields {
