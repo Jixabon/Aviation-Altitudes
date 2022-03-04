@@ -1076,13 +1076,14 @@ const clearField = (btn, event) => {
 };
 
 const setDebug = (value) => {
-  settings.debug = value === 'true';
+  dbug(2, `setting debug to ${value}`);
+  settings.debug = value;
   const debugFields = document.querySelectorAll('[debug]');
   if (value == false) {
     store.removeItem('debug');
     debugFields.forEach((field) => field.classList.add('hidden'));
   } else {
-    store.setItem('debug', value === 'true');
+    store.setItem('debug', value);
     debugFields.forEach((field) => field.classList.remove('hidden'));
   }
 };
