@@ -1,6 +1,8 @@
 A simple and effective tool to understand what's going on in the sky. Use the Airport Sync feature to lookup the current METAR for an airport. Useful for both students and instructors to illustrate how an alimeter works without being in the plane. Change the in-flight temperature and see how True altitude changes relative to Indicated altitude. See how Pressure and Density altitudes change how the airplane will fly on that day.
 
-Do you like the project or has hit helped you study and understand the topics around altitudes? Show your appreciation by [buying me a coffee](https://ko-fi.com/jixabon)!
+Do you like the project or has hit helped you study and understand the topics around altitudes? Show your appreciation!
+
+<a href='https://ko-fi.com/X8X2B5HR3' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi2.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 ## We've Moved!
 
