@@ -1,4 +1,4 @@
-A quick tool to visualize the different altitudes in aviation and to see how pressure and temperature change them.
+A simple and effective tool to understand what's going on in the sky. Use the Airport Sync feature to lookup the current METAR for an airport. Useful for both students and instructors to illustrate how an alimeter works without being in the plane. Change the in-flight temperature and see how True altitude changes relative to Indicated altitude. See how Pressure and Density altitudes change how the airplane will fly on that day.
 
 Do you like the project or has hit helped you study and understand the topics around altitudes? Show your appreciation by [buying me a coffee](https://ko-fi.com/jixabon)!
 
