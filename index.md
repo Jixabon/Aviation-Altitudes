@@ -40,7 +40,7 @@ When an airport is set, the button will appear in the top fields panel. There ar
 The following fields are set from the METAR:
 
 - Elevation (the elevation of the observing station)
-- Pressure (currently only supports inHg)
+- Pressure
 - Surface Temperature
 - Dew Point
 
@@ -100,8 +100,6 @@ From what I could find these are the commonly used formulas, although my numbers
 - Density Altitude = PressureAlt + 120 &times; (OAT - ISA)
 - Absolute Altitude = TrueAlt - FieldAlt
 - True Altitude = IndicatedAlt + TEC
-
-Be sure to press the reset button afterwards.
 
 ## Google Analytics
 
