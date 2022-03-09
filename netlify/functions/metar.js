@@ -38,25 +38,39 @@ exports.handler = async (event, context) => {
 
   var metars = json?.response?.data[0]?.METAR.map((metar) => {
     return Object.entries(metar).reduce((metars, [name, value]) => {
-      metars[name] =
-        typeof value[0] != 'object'
-          ? value[0]
-          : Object.entries(value[0]).reduce((nested, [name, value]) => {
-              var attrs = null;
-              if (name == '$') {
-                attrs = Object.entries(value).reduce((attrs, [name, value]) => {
-                  attrs[name] = value;
+      switch (name) {
+        case 'quality_control_flags':
+          metars[name] = value.reduce((flags, item) => {
+            let props = Object.entries(item).reduce((props, [name, value]) => {
+              props[name] = value[0];
 
-                  return attrs;
-                }, {});
-
-                nested = { ...nested, ...attrs };
-              } else {
-                nested[name] = value[0];
-              }
-
-              return nested;
+              return props;
             }, {});
+            return { ...flags, ...props };
+          }, {});
+          break;
+
+        case 'sky_condition':
+          metars[name] = value.map((item) =>
+            Object.entries(item).reduce(
+              (nested, [name, value]) => {
+                if (name == '$') {
+                  nested = { ...nested, ...value };
+                } else {
+                  nested[name] = value[0];
+                }
+
+                return nested;
+              },
+              typeof item === 'object' ? {} : ''
+            )
+          );
+          break;
+
+        default:
+          metars[name] = value[0];
+          break;
+      }
 
       return metars;
     }, {});
