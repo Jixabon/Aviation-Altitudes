@@ -842,6 +842,7 @@ const updateSyncAirportButton = (forceUpdate) => {
       var metar = JSON.parse(metarJson);
       setFlightCategory(existingButton, metar?.flight_category);
       setWindIndicator(metar);
+      setCloudLayers(metar);
     }
   } else {
     existingButton?.remove();
@@ -931,6 +932,66 @@ const setWindIndicator = (metar) => {
           .join('-')}kts`;
 };
 
+const setCloudLayers = (metar) => {
+  // remove old cloudLayers
+  document.querySelectorAll('cloudlayer').forEach((layer) => layer.remove());
+
+  // generate new cloudLayers
+  const altitudes = document.querySelector('altitudes');
+  var cloudLayers = [
+    { sky_cover: 'FEW', cloud_base_ft_agl: '2000' },
+    { sky_cover: 'SCT', cloud_base_ft_agl: '3500' },
+    { sky_cover: 'BKN', cloud_base_ft_agl: '5000' },
+    { sky_cover: 'OVC', cloud_base_ft_agl: '6500' },
+  ];
+  // var cloudLayers = [...metar.sky_condition];
+  console.log(cloudLayers);
+  cloudLayers = cloudLayers
+    .filter((layer) => layer.sky_cover !== 'CLR')
+    .map((layer, index) => {
+      const cloudLayer = document.createElement('cloudlayer');
+      cloudLayer.id = `layer${index}`;
+      cloudLayer.innerHTML = `<span>${layer.sky_cover} - ${layer.cloud_base_ft_agl}</span>`;
+
+      var numClouds = 0;
+      switch (layer.sky_cover) {
+        case 'FEW':
+          numClouds = 3;
+          break;
+
+        case 'SCT':
+          numClouds = 5;
+          break;
+
+        case 'BKN':
+          numClouds = 7;
+          break;
+
+        case 'OVC':
+          numClouds = 17;
+          break;
+
+        default:
+      }
+
+      Array.from({ length: numClouds }).forEach(() => {
+        const cloud = document.createElement('cloud');
+        cloudLayer.append(cloud);
+      });
+
+      cloudLayer.style.setProperty(
+        '--layer',
+        Number(layer.cloud_base_ft_agl) / settings.reductionFactor + 'px'
+      );
+
+      return cloudLayer;
+    });
+
+  console.log(cloudLayers);
+
+  cloudLayers.forEach((layer) => altitudes.prepend(layer));
+};
+
 const insertRecentMetar = () => {
   var metarJson = store.getItem('mostRecentMetar');
   var metar = JSON.parse(metarJson);
@@ -1002,6 +1063,7 @@ const syncAirport = async () => {
           setFlightCategory(syncButton, metar?.flight_category);
           insertMetar(metar);
           setWindIndicator(metar);
+          setCloudLayers(metar);
 
           updateEnv(runCalculations(getFieldValues()));
         } else {
