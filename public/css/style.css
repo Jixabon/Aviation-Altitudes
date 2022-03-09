@@ -231,14 +231,14 @@ ui.out {
 }
 
 
-inputs, info, views, settings, whatsNew, #updateAvailable {
+inputs, info, views, settings, whatsnew, #updateAvailable {
     color: white;
     background-color: rgba(0,0,0,0.7);
     border: #4e4e4e 1px solid;
     box-shadow: #0000002e 5px 5px 8px;
 }
 @supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
-  inputs, info, views, settings, whatsNew, #updateAvailable {
+  inputs, info, views, settings, whatsnew, #updateAvailable {
     background-color: rgba(0,0,0,0.3);
     backdrop-filter: blur(3px);
     -webkit-backdrop-filter: blur(3px);
@@ -394,7 +394,7 @@ velocity {
     display: flex !important;
 }
 
-settings, whatsNew {
+settings, whatsnew {
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -405,7 +405,7 @@ settings, whatsNew {
     padding: var(--ui-padding);
     border-radius: var(--ui-radius);
 }
-settings h2, whatsNew h2 {
+settings h2, whatsnew h2 {
     margin: 0;
 }
 settings #settingsFields {
@@ -498,14 +498,14 @@ sea {
 }
 sea::before {
     content: '';
-    width: 70vw;
+    width: 233.3%;
     display: block;
     background-color: var(--color-sea);
     height: var(--sea-height);
     border-top: #759fd0 6px solid;
     position: absolute;
     bottom: -6px;
-    left: 30vw;
+    left: 100%;
 }
 #seaInfo {
     color: #2c4155;
