@@ -1,4 +1,4 @@
-const OFFLINE_VERSION = '1.6.2';
+const OFFLINE_VERSION = '1.6.3';
 const WHATS_NEW = [];
 
 const CACHE_PREFIX = 'avi-alts';
@@ -34,6 +34,13 @@ var dynamic_resources = [
   '/icons/icon-192x192.png',
   '/icons/icon-384x384.png',
   '/icons/icon-512x512.png',
+  '/icons/maskable-icon-48x48.png',
+  '/icons/maskable-icon-72x72.png',
+  '/icons/maskable-icon-96x96.png',
+  '/icons/maskable-icon-128x128.png',
+  '/icons/maskable-icon-192x192.png',
+  '/icons/maskable-icon-384x384.png',
+  '/icons/maskable-icon-512x512.png',
   '/apple-touch-icon.png',
   '/favicon-16x16.png',
   '/favicon-32x32.png',
