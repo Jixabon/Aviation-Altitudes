@@ -697,6 +697,32 @@ freezingLevel> span {
     right: calc(var(--ruler-offset) + var(--label-width) + var(--label-gap));
 }
 
+cloudlayer {
+    --layer: 0px;
+    display: flex;
+    justify-content: space-around;
+    bottom: calc((var(--sea-height) - 1px) + var(--elevation) + var(--layer));
+}
+cloudlayer > span {
+    display: none;
+}
+cloud, cloud::before, cloud::after {
+    display: block;
+    color: white;
+    background-color: currentColor;
+}
+cloud {
+    width: 80px;
+    height: 37px;
+    border-radius: 44%;
+    position: relative;
+    /* border: 1px gray solid; */
+    box-shadow: currentColor -31px -6px 4px,
+        currentColor -14px 7px 4px,
+        currentColor 16px 5px 4px,
+        currentColor 33px -13px 4px;
+}
+
 .hidden {
     display: none;
 }
