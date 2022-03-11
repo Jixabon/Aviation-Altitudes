@@ -921,14 +921,15 @@ const setWindIndicator = (metar) => {
   arrow.style.transform = metar?.wind_dir_degrees
     ? `rotate(${metar.wind_dir_degrees}deg)`
     : '';
-  direction.innerHTML =
-    metar.wind_dir_degrees == 0 ? 'Wind' : `${metar?.wind_dir_degrees}&deg;`;
-  velocity.innerText =
-    metar.wind_speed_kt == 0
-      ? 'Calm'
-      : `${[metar?.wind_speed_kt, metar?.wind_gust_kt]
-          .filter((speed) => !!speed === true)
-          .join('-')}kts`;
+  if (metar.wind_dir_degrees == 0 && metar.wind_speed_kt == 0) {
+    direction.innerHTML = 'Wind';
+    velocity.innerHTML = 'Calm';
+  } else {
+    direction.innerHTML = `${metar?.wind_dir_degrees}&deg;`;
+    velocity.innerText = `${[metar?.wind_speed_kt, metar?.wind_gust_kt]
+      .filter((speed) => !!speed === true)
+      .join('-')}kts`;
+  }
 };
 
 const insertRecentMetar = () => {
