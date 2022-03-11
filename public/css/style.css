@@ -41,10 +41,6 @@ html, body {
     padding: 0;
 }
 
-html {
-    scroll-behavior: smooth;
-}
-
 body {
     font-family: 'Cabin', sans-serif;
     font-weight: 600;
