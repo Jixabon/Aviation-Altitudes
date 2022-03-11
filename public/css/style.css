@@ -189,19 +189,64 @@ input:checked + .slider:before {
     color: var(--color-ground);
 }
 
-#syncAirportButton.vfr {
-    color: rgb(34, 248, 34);
-}
-#syncAirportButton.mvfr {
-    color: rgb(51, 112, 255);
-}
-#syncAirportButton.ifr {
-    color: rgb(179, 9, 9);
-
-}
+#syncAirportButton.vfr,
+#syncAirportButton.mvfr,
+#syncAirportButton.ifr,
 #syncAirportButton.lifr {
-    color: rgb(154, 30, 255);
-
+    padding-right: 0;
+    overflow:hidden;
+    position: relative;
+}
+#syncAirportButton.vfr::before,
+#syncAirportButton.mvfr::before,
+#syncAirportButton.ifr::before,
+#syncAirportButton.lifr::before {
+    display: inline;
+    content: '';
+    height: 100%;
+    border-radius: 100px;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+#syncAirportButton.vfr::before{
+    width: calc(100% - 47px);
+    box-shadow: rgb(34, 248, 34) 0 0 0 100px;
+}
+#syncAirportButton.mvfr::before {
+    width: calc(100% - 60px);
+    box-shadow: rgb(51, 112, 255) 0 0 0 100px;
+}
+#syncAirportButton.ifr::before{
+    width: calc(100% - 41px);
+    box-shadow: rgb(179, 9, 9) 0 0 0 100px;
+}
+#syncAirportButton.lifr::before {
+    width: calc(100% - 49px);
+    box-shadow: rgb(154, 30, 255) 0 0 0 100px;
+}
+#syncAirportButton.vfr::after,
+#syncAirportButton.mvfr::after,
+#syncAirportButton.ifr::after,
+#syncAirportButton.lifr::after {
+    display: inline;
+    padding: 5px 10px 5px 8px;
+    margin-left: 10px;
+    border-radius: 100px;
+    color: white;
+    position: relative;
+}
+#syncAirportButton.vfr::after{
+    content: 'VFR';
+}
+#syncAirportButton.mvfr::after {
+    content: 'MVFR';
+}
+#syncAirportButton.ifr::after{
+    content: 'IFR';
+}
+#syncAirportButton.lifr::after {
+    content: 'LIFR';
 }
 #syncAirportButton i {
     margin-right: 5px;
