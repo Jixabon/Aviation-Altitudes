@@ -83,13 +83,15 @@
                     }
                 });
 
+                let forcingUpdate = false;
                 document.getElementById('update').addEventListener('click', () => {
+                    forcingUpdate = true;
                     newWorker.postMessage({ action: 'skipWaiting' });
                 });
 
                 let refreshing;
                 navigator.serviceWorker.addEventListener('controllerchange',  () => {
-                    if (refreshing) return;
+                    if (refreshing || !forcingUpdate) return;
                     window.location.reload();
                     refreshing = true;
                 });
