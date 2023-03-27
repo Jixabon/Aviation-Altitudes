@@ -41,64 +41,64 @@
             console.info('Google Analytics Disabled');
         }
 
-        // let newWorker;
-        // if ('serviceWorker' in navigator) {
-        //     window.addEventListener('load', () => {
-        //         console.log('Registering Service Worker');
-        //         navigator.serviceWorker.register('/sw.js', { scope: '/' })
-        //             .then((registration) => {
-        //                 console.log('Service Worker is registered', registration);
+        let newWorker;
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                console.log('Registering Service Worker');
+                navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                    .then((registration) => {
+                        console.log('Service Worker is registered', registration);
 
-        //                 registration.addEventListener('updatefound', () => {
-        //                     // An updated service worker has appeared in reg.installing!
-        //                     newWorker = registration.installing;
+                        registration.addEventListener('updatefound', () => {
+                            // An updated service worker has appeared in reg.installing!
+                            newWorker = registration.installing;
 
-        //                     newWorker.addEventListener('statechange', () => {
-        //                         // Has service worker state changed?
-        //                         switch (newWorker.state) {
-        //                             case 'installed':
-        //                                 // There is a new service worker available, show the notification
-        //                                 if (navigator.serviceWorker.controller) {
-        //                                     let notification = document.getElementById('updateAvailable');
-        //                                     notification.classList.add('out');
-        //                                 }
+                            newWorker.addEventListener('statechange', () => {
+                                // Has service worker state changed?
+                                switch (newWorker.state) {
+                                    case 'installed':
+                                        // There is a new service worker available, show the notification
+                                        if (navigator.serviceWorker.controller) {
+                                            let notification = document.getElementById('updateAvailable');
+                                            notification.classList.add('out');
+                                        }
 
-        //                                 break;
-        //                         }
-        //                     });
-        //                 });
-        //             })
-        //             .catch((err) => {
-        //                 console.error('Registration failed:', err);
-        //             });
+                                        break;
+                                }
+                            });
+                        });
+                    })
+                    .catch((err) => {
+                        console.error('Registration failed:', err);
+                    });
 
-        //         navigator.serviceWorker.addEventListener('message', (event) => {
-        //             if (event.data.version) {
-        //                 console.log('setting sw version');
-        //                 window.localStorage.setItem('sw-version', event.data.version);
-        //                 let swVersion = document.getElementById('sw-version');
-        //                 if (swVersion) swVersion.innerText = `SW: v${event.data.version}`;
-        //             }
+                navigator.serviceWorker.addEventListener('message', (event) => {
+                    if (event.data.version) {
+                        console.log('setting sw version');
+                        window.localStorage.setItem('sw-version', event.data.version);
+                        let swVersion = document.getElementById('sw-version');
+                        if (swVersion) swVersion.innerText = `SW: v${event.data.version}`;
+                    }
 
-        //             if (event.data.whatsNew) {
-        //                 window.localStorage.setItem('whatsNew', event.data.whatsNew);
-        //             }
-        //         });
+                    if (event.data.whatsNew) {
+                        window.localStorage.setItem('whatsNew', event.data.whatsNew);
+                    }
+                });
 
-        //         let forcingUpdate = false;
-        //         document.getElementById('update').addEventListener('click', () => {
-        //             forcingUpdate = true;
-        //             newWorker.postMessage({ action: 'skipWaiting' });
-        //         });
+                let forcingUpdate = false;
+                document.getElementById('update').addEventListener('click', () => {
+                    forcingUpdate = true;
+                    newWorker.postMessage({ action: 'skipWaiting' });
+                });
 
-        //         let refreshing;
-        //         navigator.serviceWorker.addEventListener('controllerchange', () => {
-        //             if (refreshing || !forcingUpdate) return;
-        //             window.location.reload();
-        //             refreshing = true;
-        //         });
-        //     });
-        // }
+                let refreshing;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (refreshing || !forcingUpdate) return;
+                    window.location.reload();
+                    refreshing = true;
+                });
+            });
+        }
     </script>
     <script src="/js/script.js"></script>
 </head>
