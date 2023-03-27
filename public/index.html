@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="description" content="Teach or learn about different altitudes in aviation. See live how temperature and pressure effect aircraft readings and freezing levels! Try it out TODAY!">
+    <meta name="description"
+        content="Teach or learn about different altitudes in aviation. See live how temperature and pressure effect aircraft readings and freezing levels! Try it out TODAY!">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Aviation Altitudes</title>
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -31,7 +33,7 @@
         const hostname = new URL(window.location).hostname.toString();
         if (!local.test(hostname)) {
             window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
+            function gtag() { dataLayer.push(arguments); }
             gtag('js', new Date());
 
             gtag('config', 'G-C7BLVVEMK7');
@@ -39,67 +41,68 @@
             console.info('Google Analytics Disabled');
         }
 
-        let newWorker;
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                console.log('Registering Service Worker');
-                navigator.serviceWorker.register('/sw.js', {scope: '/'})
-                    .then((registration) => {
-                        console.log('Service Worker is registered', registration);
+        // let newWorker;
+        // if ('serviceWorker' in navigator) {
+        //     window.addEventListener('load', () => {
+        //         console.log('Registering Service Worker');
+        //         navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        //             .then((registration) => {
+        //                 console.log('Service Worker is registered', registration);
 
-                        registration.addEventListener('updatefound', () => {
-                            // An updated service worker has appeared in reg.installing!
-                            newWorker = registration.installing;
+        //                 registration.addEventListener('updatefound', () => {
+        //                     // An updated service worker has appeared in reg.installing!
+        //                     newWorker = registration.installing;
 
-                            newWorker.addEventListener('statechange', () => {
-                                // Has service worker state changed?
-                                switch (newWorker.state) {
-                                    case 'installed':
-                                        // There is a new service worker available, show the notification
-                                        if (navigator.serviceWorker.controller) {
-                                            let notification = document.getElementById('updateAvailable');
-                                            notification.classList.add('out');
-                                        }
+        //                     newWorker.addEventListener('statechange', () => {
+        //                         // Has service worker state changed?
+        //                         switch (newWorker.state) {
+        //                             case 'installed':
+        //                                 // There is a new service worker available, show the notification
+        //                                 if (navigator.serviceWorker.controller) {
+        //                                     let notification = document.getElementById('updateAvailable');
+        //                                     notification.classList.add('out');
+        //                                 }
 
-                                    break;
-                                }
-                            });
-                        });
-                    })
-                    .catch((err) => {
-                        console.error('Registration failed:', err);
-                    });
+        //                                 break;
+        //                         }
+        //                     });
+        //                 });
+        //             })
+        //             .catch((err) => {
+        //                 console.error('Registration failed:', err);
+        //             });
 
-                navigator.serviceWorker.addEventListener('message', (event) => {
-                    if (event.data.version) {
-                        console.log('setting sw version');
-                        window.localStorage.setItem('sw-version', event.data.version);
-                        let swVersion = document.getElementById('sw-version');
-                        if (swVersion) swVersion.innerText = `SW: v${event.data.version}`;
-                    }
+        //         navigator.serviceWorker.addEventListener('message', (event) => {
+        //             if (event.data.version) {
+        //                 console.log('setting sw version');
+        //                 window.localStorage.setItem('sw-version', event.data.version);
+        //                 let swVersion = document.getElementById('sw-version');
+        //                 if (swVersion) swVersion.innerText = `SW: v${event.data.version}`;
+        //             }
 
-                    if (event.data.whatsNew) {
-                        window.localStorage.setItem('whatsNew', event.data.whatsNew);
-                    }
-                });
+        //             if (event.data.whatsNew) {
+        //                 window.localStorage.setItem('whatsNew', event.data.whatsNew);
+        //             }
+        //         });
 
-                let forcingUpdate = false;
-                document.getElementById('update').addEventListener('click', () => {
-                    forcingUpdate = true;
-                    newWorker.postMessage({ action: 'skipWaiting' });
-                });
+        //         let forcingUpdate = false;
+        //         document.getElementById('update').addEventListener('click', () => {
+        //             forcingUpdate = true;
+        //             newWorker.postMessage({ action: 'skipWaiting' });
+        //         });
 
-                let refreshing;
-                navigator.serviceWorker.addEventListener('controllerchange',  () => {
-                    if (refreshing || !forcingUpdate) return;
-                    window.location.reload();
-                    refreshing = true;
-                });
-            });
-        }
+        //         let refreshing;
+        //         navigator.serviceWorker.addEventListener('controllerchange', () => {
+        //             if (refreshing || !forcingUpdate) return;
+        //             window.location.reload();
+        //             refreshing = true;
+        //         });
+        //     });
+        // }
     </script>
     <script src="/js/script.js"></script>
 </head>
+
 <body>
     <main class="hidden">
         <h1>Aviation Altitudes</h1>
@@ -142,7 +145,7 @@
         <inputs id="inputs">
             <div class="input-wrapper">
                 <label>Elevation <span class="altitudeUnitLabel"></span></label>
-                <input type="number" id="elevation" step="10" placeholder="790"/>
+                <input type="number" id="elevation" step="10" placeholder="790" />
             </div>
             <div class="input-wrapper">
                 <label>Pressure <span class="pressureUnitLabel"></span></label>
@@ -179,7 +182,8 @@
                 <div id="controlRow">
                     <button id="settingsBtn" onClick="toggleOut('settingsWrapper');">Settings</button>
                     <button id="infoBtn" onClick="toggleOut('info', this, 'Hide Data', 'Show Data');">Show Data</button>
-                    <button id="fieldsBtn" onClick="toggleOut('ui', this, 'Hide Fields', 'Show Fields');">Show Fields</button>
+                    <button id="fieldsBtn" onClick="toggleOut('ui', this, 'Hide Fields', 'Show Fields');">Show
+                        Fields</button>
                 </div>
             </div>
         </inputs>
@@ -206,17 +210,15 @@
                     </div>
                     <div class="input-wrapper">
                         <label>Flight Levels Start (thousands)</label>
-                        <input type="number" id="settingFlightLevelStart" onblur="setFlightLevelStart(this.value);" placeholder="18" />
+                        <input type="number" id="settingFlightLevelStart" onblur="setFlightLevelStart(this.value);"
+                            placeholder="18" />
                     </div>
                     <div class="input-wrapper">
                         <label>Airport METAR Sync</label>
                         <div class="input-inline-wrapper">
-                            <input type="text"
-                                id="settingAirport"
+                            <input type="text" id="settingAirport"
                                 oninput="let p=this.selectionStart;this.value=this.value.toUpperCase().replace(/(?![A-Z])./g, '').substr(0, 4);this.setSelectionRange(p, p);"
-                                onblur="setAirport(this.value);"
-                                placeholder="ICAO Airport Identifier"
-                            />
+                                onblur="setAirport(this.value);" placeholder="ICAO Airport Identifier" />
                             <button onclick="clearField(this, new Event('blur'));">Clear</button>
                         </div>
                     </div>
@@ -239,7 +241,8 @@
                     </div>
                     <div class="input-wrapper hidden" debug>
                         <label>Logging Level</label>
-                        <input type="number" id="settingDebugLevel" onblur="setDebugLevel(this.value);" placeholder="1" />
+                        <input type="number" id="settingDebugLevel" onblur="setDebugLevel(this.value);"
+                            placeholder="1" />
                     </div>
                     <div class="input-wrapper hidden" debug>
                         <label>Reduction Factor</label>
@@ -247,12 +250,14 @@
                             <div class="input-inline-wrapper">
                                 1000ft <i class="fa-solid fa-divide"></i>
                             </div>
-                            <input type="number" id="settingReductionFactor" onblur="setReductionFactor(this.value);" placeholder="10"/>
+                            <input type="number" id="settingReductionFactor" onblur="setReductionFactor(this.value);"
+                                placeholder="10" />
                         </div>
                     </div>
                 </div>
                 <div id="settingsButtons">
-                    <a href="https://jixabon.github.io/Aviation-Altitudes/#interface" class="btn" target="_blank">Help</a>
+                    <a href="https://jixabon.github.io/Aviation-Altitudes/#interface" class="btn"
+                        target="_blank">Help</a>
                     <button onClick="toggleOut('settingsWrapper');">Close</button>
                 </div>
                 <div id="versions">
@@ -278,12 +283,14 @@
             </div>
             <p>
                 <a href="https://jixabon.github.io/Aviation-Altitudes/" target="_blank">GitHub</a> &middot;
-                <a href="https://jixabon.github.io/Aviation-Altitudes/#google-analytics" target="_blank">Google Analytics</a> &middot;
+                <a href="https://jixabon.github.io/Aviation-Altitudes/#google-analytics" target="_blank">Google
+                    Analytics</a> &middot;
                 <a href="https://ko-fi.com/jixabon" target="_blank">Buy me a coffee</a>
             </p>
             <p class="smallprint">
-                This tool is for learning purposes only and should not be used in flight planning.<br/>
-                Copyright &copy; <script>document.write(new Date().getFullYear())</script> Jixabon
+                This tool is for learning purposes only and should not be used in flight planning.<br />
+                Copyright &copy;
+                <script>document.write(new Date().getFullYear())</script> Jixabon
             </p>
         </views>
     </ui>
@@ -296,19 +303,20 @@
         </ground>
         <below></below>
         <altitudes>
-            <seaLevel>
-                <span>Sea Level</span>
+            <leftRuler>
                 <ruler class="hide-zero" ticks="140" negative-ticks="22"></ruler>
-            </seaLevel>
-            <feels>
-                <span>Feels</span>
+            </leftRuler>
+            <rightRuler>
                 <ruler class="right" ticks="140" negative-ticks="20"></ruler>
-            </feels>
+            </rightRuler>
             <freezingLevel>
                 <span>Freezing</span>
             </freezingLevel>
+            <cloudLevel>
+                <span>Cloud</span>
+            </cloudLevel>
             <datum>
-                <span>Standard <span id="standardPressureValue"></span></span>
+                <span>Standard Datum</span>
             </datum>
             <pressure>
                 <span>Pressure</span>
@@ -326,4 +334,5 @@
         </altitudes>
     </environment>
 </body>
+
 </html>

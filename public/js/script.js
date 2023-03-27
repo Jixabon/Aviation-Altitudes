@@ -137,10 +137,19 @@ const TEC = (absoluteAlt, alt, oat) =>
 const pressureCorrection = (baro) => {
   switch (settings.pressureUnit) {
     case units.pressure.hPa:
-      return (baro - standards.pressure.hPa) * 30;
+      return (standards.pressure.hPa - baro) * 30;
 
     default:
       return (standards.pressure.inHg - baro) * 1000; // inHg
+  }
+};
+const surfacePressure = (alt, baro) => {
+  switch (settings.pressureUnit) {
+    case units.pressure.hPa:
+      return baro - alt / 30;
+
+    default:
+      return baro - alt / 1000; // inHg
   }
 };
 const kollsmanCorrection = (kollsman, baro) => {
@@ -152,13 +161,13 @@ const kollsmanCorrection = (kollsman, baro) => {
       return (baro - kollsman) * 1000; // inHg
   }
 };
-const pressureAlt = (alt, presCorr) => alt + presCorr;
+const pressureAlt = (alt, presCorr) => presCorr + alt;
 const densityAlt = (presAlt, oat, alt) => presAlt + 120 * (oat - ISA(alt));
 const absoluteAlt = (trueAlt, fieldElev) => trueAlt - fieldElev;
 const trueAlt = (indicatedAlt, tec) => indicatedAlt + tec;
 const indicatedAlt = (alt, presCorr) => alt - presCorr;
-const freezingLevel = (temp, dewPt, elevation) =>
-  ((temp - dewPt) / 2.5) * 1000 + elevation;
+const cloudLevel = (temp, dewPt) => ((temp - dewPt) / 2.5) * 1000;
+const freezingLevel = (temp, elevation) => (temp / 2) * 1000 + elevation;
 
 // --- Environment ---
 
@@ -176,11 +185,9 @@ const runCalculations = (fields) => {
   calcs.surfaceIsa = ISA(fields.elevation);
   calcs.surfaceIsaDev = ISADeviation(fields.elevation, fields.surfaceTemp);
 
-  calcs.freezingLevel = freezingLevel(
-    fields.surfaceTemp,
-    fields.dewPoint,
-    fields.elevation
-  );
+  calcs.cloudLevel = cloudLevel(fields.surfaceTemp, fields.dewPoint);
+
+  calcs.freezingLevel = freezingLevel(fields.surfaceTemp, fields.elevation);
 
   const indicatedInput = document.getElementById('indicatedAlt');
   const trueInput = document.getElementById('trueAlt');
@@ -193,14 +200,19 @@ const runCalculations = (fields) => {
     calcs.tec = TEC(calcs.absoluteAlt, fields.trueAlt, fields.oat);
 
     calcs.indicatedAlt = fields.trueAlt - calcs.tec;
-    calcs.indicatedAlt = indicatedAlt(
+    calcs.kollsIndAlt = indicatedAlt(
       calcs.indicatedAlt,
-      pressureCorrection(fields.kollsman)
+      kollsmanCorrection(fields.kollsman, fields.pressure)
     );
     document.getElementById('indicatedAlt').value = round2(calcs.indicatedAlt);
     updateState({ indicatedAlt: calcs.indicatedAlt });
 
-    calcs.presAltFlight = fields.indicatedAlt - calcs.presCorr;
+    calcs.presAltFlight = pressureAlt(calcs.indicatedAlt, calcs.presCorr);
+    calcs.densAltFlight = densityAlt(
+      calcs.presAltFlight,
+      fields.oat,
+      calcs.indicatedAlt
+    );
 
     calcs.isa = ISA(fields.trueAlt);
     calcs.isaDev = ISADeviation(fields.trueAlt, fields.oat);
@@ -209,14 +221,19 @@ const runCalculations = (fields) => {
     trueInput.classList.add('calculated');
     indicatedInput.classList.remove('calculated');
 
-    calcs.indicatedAlt = indicatedAlt(
+    calcs.kollsIndAlt = indicatedAlt(
       fields.indicatedAlt,
-      pressureCorrection(fields.kollsman)
+      kollsmanCorrection(fields.kollsman, fields.pressure)
     );
 
     calcs.absoluteAlt = absoluteAlt(fields.indicatedAlt, fields.elevation);
 
-    calcs.presAltFlight = fields.indicatedAlt - calcs.presCorr;
+    calcs.presAltFlight = pressureAlt(fields.indicatedAlt, calcs.presCorr);
+    calcs.densAltFlight = densityAlt(
+      calcs.presAltFlight,
+      fields.oat,
+      fields.indicatedAlt
+    );
     calcs.tec = TEC(calcs.absoluteAlt, calcs.presAltFlight, fields.oat);
 
     calcs.trueAlt = trueAlt(fields.indicatedAlt, calcs.tec);
@@ -226,6 +243,8 @@ const runCalculations = (fields) => {
     calcs.isa = ISA(fields.indicatedAlt);
     calcs.isaDev = ISADeviation(fields.indicatedAlt, fields.oat);
   }
+
+  calcs.surfacePres = surfacePressure(fields.elevation, fields.pressure);
 
   dbug(2, 'calcs', calcs);
   return calcs;
@@ -262,47 +281,79 @@ const updateEnv = (values) => {
   }
 
   const infoList = {
-    'Temp. Error': `${round2(values.tec)}${settings.altitudeUnit}`,
-    'Pressure Correction': `${round2(values.presCorr)}${settings.altitudeUnit}`,
-    'ISA in Flight': `${round2(values.isa)}&deg;${settings.tempUnit}`,
-    'ISA Dev. in Flight': `ISA${
-      values.isaDev >= 0 ? '+' + round2(values.isaDev) : round2(values.isaDev)
-    }&deg;${settings.tempUnit}`,
-    'Kolls. Adjusted Ind.': `${round2(values.indicatedAlt)}${
+    'Pressure Conv. Factor': `${round2(values.presCorr)}${
       settings.altitudeUnit
     }`,
-    'Pressure Alt. in Flight': `${round2(values.presAltFlight)}${
-      settings.altitudeUnit
-    }`,
-    'Absolute (AGL)': `${round2(values.absoluteAlt)}${settings.altitudeUnit}`,
-    'Pressure Alt. at Surface': `${round2(values.presAlt)}${
-      settings.altitudeUnit
-    }`,
-    'Density Alt. at Surface': `${round2(values.densAlt)}${
-      settings.altitudeUnit
-    }`,
-    'ISA at Surface': `${round2(values.surfaceIsa)}&deg;${settings.tempUnit}`,
-    'ISA Dev. at Surface': `ISA${
-      values.surfaceIsaDev >= 0
-        ? '+' + round2(values.surfaceIsaDev)
-        : round2(values.surfaceIsaDev)
-    }&deg;${settings.tempUnit}`,
-    'Freezing Level': `${round2(values.freezingLevel)}${settings.altitudeUnit}`,
+    'In Flight': {
+      ISA: `${round2(values.isa)}&deg;${settings.tempUnit}`,
+      'ISA Deviation': `ISA${
+        values.isaDev >= 0 ? '+' + round2(values.isaDev) : round2(values.isaDev)
+      }&deg;${settings.tempUnit}`,
+      'Indicated Altitude': `${round2(values.indicatedAlt)}${
+        settings.altitudeUnit
+      }`,
+      'Kolls. Adjusted Ind.': `${round2(values.kollsIndAlt)}${
+        settings.altitudeUnit
+      }`,
+      'Temp. Error Correction': `${round2(values.tec)}${settings.altitudeUnit}`,
+      'True Altitude': `${round2(values.trueAlt)}${settings.altitudeUnit}`,
+      'Pressure Altitude': `${round2(values.presAltFlight)}${
+        settings.altitudeUnit
+      }`,
+      'Density Altitude': `${round2(values.densAltFlight)}${
+        settings.altitudeUnit
+      }`,
+      'Absolute (AGL)': `${round2(values.absoluteAlt)}${settings.altitudeUnit}`,
+    },
+    'On the Surface': {
+      ISA: `${round2(values.surfaceIsa)}&deg;${settings.tempUnit}`,
+      'ISA Deviation': `ISA${
+        values.surfaceIsaDev >= 0
+          ? '+' + round2(values.surfaceIsaDev)
+          : round2(values.surfaceIsaDev)
+      }&deg;${settings.tempUnit}`,
+      'Pressure Altitude': `${round2(values.presAlt)}${settings.altitudeUnit}`,
+      'Density Altitude': `${round2(values.densAlt)}${settings.altitudeUnit}`,
+      'Cloud Level (AGL)': `${round2(values.cloudLevel)}${
+        settings.altitudeUnit
+      }`,
+      'Freezing Level': `${round2(values.freezingLevel)}${
+        settings.altitudeUnit
+      }`,
+    },
   };
 
   dbug(1, 'updating info panel');
 
   const info = document.getElementById('info');
   info.innerHTML = '';
-  for (let [label, value] of Object.entries(infoList)) {
-    const itemDiv = document.createElement('div');
-    const labelDiv = document.createElement('div');
-    labelDiv.innerHTML = label;
-    const valueDiv = document.createElement('div');
-    valueDiv.innerHTML = value;
-    itemDiv.append(labelDiv);
-    itemDiv.append(valueDiv);
-    info.append(itemDiv);
+  for (let [category, list] of Object.entries(infoList)) {
+    if (typeof list === 'object') {
+      const categoryDiv = document.createElement('div');
+      categoryDiv.innerHTML = category;
+      categoryDiv.classList.add('category');
+      info.append(categoryDiv);
+
+      for (let [label, value] of Object.entries(list)) {
+        const itemDiv = document.createElement('div');
+        const labelDiv = document.createElement('div');
+        labelDiv.innerHTML = label;
+        const valueDiv = document.createElement('div');
+        valueDiv.innerHTML = value;
+        itemDiv.append(labelDiv);
+        itemDiv.append(valueDiv);
+        info.append(itemDiv);
+      }
+    } else {
+      const itemDiv = document.createElement('div');
+      const labelDiv = document.createElement('div');
+      labelDiv.innerHTML = category;
+      const valueDiv = document.createElement('div');
+      valueDiv.innerHTML = list;
+      itemDiv.append(labelDiv);
+      itemDiv.append(valueDiv);
+      info.append(itemDiv);
+    }
   }
 
   dbug(1, 'updating ground level info');
@@ -313,6 +364,7 @@ const updateEnv = (values) => {
     `Elev.&nbsp;${values.elevation}${settings.altitudeUnit}`,
     `Temp.&nbsp;${values.surfaceTemp}&deg;${settings.tempUnit}`,
     `Dew&nbsp;Pt.&nbsp;${values.dewPoint}&deg;${settings.tempUnit}`,
+    `Pressure ${round2(values.surfacePres)}${settings.pressureUnit}`,
   ].join(' - ');
 
   const sea = document.getElementById('seaInfo');
@@ -324,14 +376,17 @@ const updateEnv = (values) => {
   const properties = {
     '--elevation': values.elevation / settings.reductionFactor + 'px',
     '--planned': values.trueAlt / settings.reductionFactor + 'px',
-    '--indicated': values.indicatedAlt / settings.reductionFactor + 'px',
-    '--datum': values.presCorr / settings.reductionFactor + 'px',
+    '--indicated': values.kollsIndAlt / settings.reductionFactor + 'px',
+    '--datum': -values.presCorr / settings.reductionFactor + 'px',
     '--pressure': values.presAlt / settings.reductionFactor + 'px',
     '--density': values.densAlt / settings.reductionFactor + 'px',
     '--true': values.trueAlt / settings.reductionFactor + 'px',
     '--absolute': values.absoluteAlt / settings.reductionFactor + 'px',
-    '--feels':
+    '--leftRuler': '0px',
+    '--rightRuler':
       (values.elevation - values.densAlt) / settings.reductionFactor + 'px',
+    '--cloud':
+      (values.cloudLevel + values.elevation) / settings.reductionFactor + 'px',
     '--freezing': values.freezingLevel / settings.reductionFactor + 'px',
   };
 
@@ -443,11 +498,6 @@ const initLabels = () => {
     loc.innerText = settings.pressureUnit;
   });
 
-  const standardPressureValue = document.getElementById(
-    'standardPressureValue'
-  );
-  standardPressureValue.innerText = standards.pressure[settings.pressureUnit];
-
   const tempUnitLocs = document.querySelectorAll('.tempUnitLabel');
   tempUnitLocs.forEach((loc) => {
     loc.innerText = settings.tempUnit;
@@ -538,7 +588,7 @@ const generateRulers = () => {
         let span = document.createElement('span');
         span.innerText =
           alt >= settings.flightLevelStart * 1000
-            ? 'FL' + ('000' + alt / 1000).substr(-3)
+            ? 'FL' + ('000' + alt / 100).substr(-3)
             : alt;
         tick.append(span);
         alt = alt - 1000;
@@ -580,7 +630,7 @@ const updateRulerLabels = () => {
         let span = tick.getElementsByTagName('span')[0];
         span.innerText =
           alt >= settings.flightLevelStart * 1000
-            ? 'FL' + ('000' + alt / 1000).substr(-3)
+            ? 'FL' + ('000' + alt / 100).substr(-3)
             : alt;
         alt = alt - 1000;
       }
@@ -627,13 +677,6 @@ const setUnit = (unit, value = null) => {
 
   const unitLabels = document.querySelectorAll(`.${unit}UnitLabel`);
   unitLabels.forEach((label) => (label.innerText = newVal));
-
-  if (unit === 'pressure') {
-    const standardPressureValue = document.getElementById(
-      'standardPressureValue'
-    );
-    standardPressureValue.innerText = standards.pressure[newVal];
-  }
 
   Object.entries(fieldDefaults)
     .filter(([id, { type }]) => type === unit)

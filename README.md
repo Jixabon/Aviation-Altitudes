@@ -21,7 +21,7 @@ From what I could find these are the commonly used formulas, although my numbers
 - Temperature Error Correction (TEC) = 4 &times; (Alt / 1000) &times; ISADev
 - Pressure Correction (PresCorr)
   - inHg: (29.92 - Baro) &times; 1000
-  - hPa: (Baro - 1013) &times; 30
+  - hPa: (1013 - Baro) &times; 30
 - Pressure Altitude = PresCorr + FieldElev
 - Density Altitude = PressureAlt + 120 &times; (OAT - ISA)
 - Absolute Altitude = TrueAlt - FieldAlt

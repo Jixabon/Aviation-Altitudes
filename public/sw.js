@@ -1,5 +1,11 @@
-const OFFLINE_VERSION = '1.6.3';
-const WHATS_NEW = [];
+const OFFLINE_VERSION = '1.7.0';
+const WHATS_NEW = [
+  'Fixed Flight Levels',
+  'Fixed Freezing level',
+  'Added Cloud Level',
+  'Fixed Standard Datum position',
+  'Categorized the info panel',
+];
 
 const CACHE_PREFIX = 'avi-alts';
 const CORE_CACHE = CACHE_PREFIX + '-core-' + OFFLINE_VERSION;

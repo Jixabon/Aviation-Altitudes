@@ -26,7 +26,9 @@
     --density: 0px;
     --true: 0px;
     --absolute: 0px;
-    --feels: 0px;
+    --leftRuler: 0px;
+    --rightRuler: 0px;
+    --cloud: 0px;
     --freezing: 0px;
 }
 
@@ -206,35 +208,40 @@ input:checked + .slider:before {
     height: 100%;
     border-radius: 100px;
     position: absolute;
-    left: 0px;
-    top: 0px;
+    left: 0;
+    top: 0;
 }
 #syncAirportButton.vfr::before{
     width: calc(100% - 47px);
-    box-shadow: rgb(0, 0, 0, 0.5) 0 0 4px 0px, rgb(34, 248, 34) 0 0 0 100px;
+    box-shadow: rgb(0, 0, 0, 0.5) 0 0 4px 0, rgb(34, 248, 34) 0 0 0 100px;
 }
 #syncAirportButton.mvfr::before {
     width: calc(100% - 60px);
-    box-shadow: rgb(0, 0, 0, 0.5) 0 0 4px 0px, rgb(51, 112, 255) 0 0 0 100px;
+    box-shadow: rgb(0, 0, 0, 0.5) 0 0 4px 0, rgb(51, 112, 255) 0 0 0 100px;
 }
 #syncAirportButton.ifr::before{
     width: calc(100% - 41px);
-    box-shadow: rgb(0, 0, 0, 0.5) 0 0 4px 0px, rgb(179, 9, 9) 0 0 0 100px;
+    box-shadow: rgb(0, 0, 0, 0.5) 0 0 4px 0, rgb(179, 9, 9) 0 0 0 100px;
 }
 #syncAirportButton.lifr::before {
     width: calc(100% - 49px);
-    box-shadow: rgb(0, 0, 0, 0.5) 0 0 4px 0px, rgb(154, 30, 255) 0 0 0 100px;
+    box-shadow: rgb(0, 0, 0, 0.5) 0 0 4px 0, rgb(154, 30, 255) 0 0 0 100px;
 }
 #syncAirportButton.vfr::after,
 #syncAirportButton.mvfr::after,
 #syncAirportButton.ifr::after,
 #syncAirportButton.lifr::after {
     display: inline;
-    padding: 5px 10px 5px 8px;
-    margin-left: 10px;
-    border-radius: 100px;
+    padding: 5px 10px 5px 20px;
+    /* margin-left: 10px; */
+    border-top-right-radius: 100px;
+    border-bottom-right-radius: 100px;
     color: white;
     position: relative;
+    /* box-shadow:
+        inset rgb(0 0 0 / 50%) -3px 9px 4px -9px,
+        inset rgb(0 0 0 / 50%) -3px -9px 4px -9px,
+        inset rgb(0 0 0 / 50%) -4px 0px 3px -4px; */
 }
 #syncAirportButton.vfr::after{
     content: 'VFR';
@@ -360,6 +367,9 @@ info.out {
 info > div {
     display: flex;
     justify-content: space-between;
+}
+info > div.category {
+    justify-content: center;
 }
 info > div > div {
     min-width: 100px;
@@ -683,6 +693,7 @@ pressure {
 }
 pressure > span {
     left: calc(var(--ruler-offset) + (var(--label-width) * 0.5));
+    color: var(--color-ground);
 }
 
 density {
@@ -690,6 +701,7 @@ density {
 }
 density > span {
     left: calc(var(--ruler-offset) + (var(--label-width) * 1.7) + var(--label-gap));
+    color: var(--color-ground);
 }
 
 true {
@@ -717,26 +729,27 @@ aircraft.near-ground {
     background-image: url('/images/cirrus-shadow.png');
 }
 
-seaLevel {
+leftRuler {
     border-bottom: transparent 2px solid;
-    bottom: calc(var(--sea-height) - 1px);
-}
-seaLevel > span {
-    display: none;
+    bottom: calc(var(--sea-height) - 1px + var(--leftRuler));
 }
 
-feels {
+rightRuler {
     border-bottom: transparent 2px solid;
-    bottom: calc(var(--sea-height) - 1px + var(--feels));
+    bottom: calc(var(--sea-height) - 1px + var(--rightRuler));
 }
-feels > span {
-    display: none;
+
+cloudLevel {
+    bottom: calc((var(--sea-height) - 1px) + var(--cloud));
+}
+cloudLevel > span {
+    left: calc(var(--ruler-offset) + var(--label-width));
 }
 
 freezingLevel {
     bottom: calc((var(--sea-height) - 1px) + var(--freezing));
 }
-freezingLevel> span {
+freezingLevel > span {
     right: calc(var(--ruler-offset) + var(--label-width) + var(--label-gap));
 }
 
